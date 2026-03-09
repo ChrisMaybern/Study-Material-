@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Day in the Life — Fund Controller Status Quo</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0D1B0F;
+    --green: #0D2B1E;
+    --teal: #3DAA7A;
+    --teal-light: #ECFFF5;
+    --cream: #FDF8F3;
+    --amber: #C8860A;
+    --red: #C0392B;
+    --gray: #8A9B8E;
+    --rule: rgba(13,43,30,0.12);
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+    --serif: 'Playfair Display', serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ── MASTHEAD ─────────────────────────────────────────────────── */
+  .masthead {
+    background: var(--green);
+    padding: 56px 64px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .masthead::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 39px,
+      rgba(61,170,122,0.06) 39px,
+      rgba(61,170,122,0.06) 40px
+    );
+  }
+  .masthead-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--teal);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .masthead h1 {
+    font-family: var(--serif);
+    font-size: 52px;
+    font-weight: 400;
+    color: #fff;
+    line-height: 1.1;
+    max-width: 700px;
+    position: relative;
+  }
+  .masthead h1 em {
+    color: var(--teal);
+    font-style: italic;
+  }
+  .masthead-sub {
+    font-family: var(--sans);
+    font-size: 14px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 20px;
+    max-width: 580px;
+    font-weight: 300;
+    position: relative;
+    line-height: 1.7;
+  }
+  .fund-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(61,170,122,0.15);
+    border: 1px solid rgba(61,170,122,0.3);
+    border-radius: 4px;
+    padding: 10px 18px;
+    margin-top: 28px;
+    position: relative;
+  }
+  .fund-badge-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--teal);
+    text-transform: uppercase;
+  }
+  .fund-badge-name {
+    font-family: var(--serif);
+    font-size: 15px;
+    color: #fff;
+    font-weight: 400;
+  }
+
+  /* ── CAST ─────────────────────────────────────────────────────── */
+  .cast-bar {
+    background: var(--ink);
+    padding: 24px 64px;
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    flex-wrap: wrap;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .cast-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .cast-person {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .cast-person-name {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 12px;
+    color: #fff;
+  }
+  .cast-person-role {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--gray);
+    letter-spacing: 1px;
+  }
+  .cast-divider {
+    width: 1px;
+    height: 32px;
+    background: rgba(255,255,255,0.1);
+  }
+
+  /* ── MAIN LAYOUT ─────────────────────────────────────────────── */
+  .container {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 64px;
+  }
+
+  /* ── TIMELINE SPINE ──────────────────────────────────────────── */
+  .timeline {
+    padding: 64px 0 80px;
+  }
+
+  .phase-block {
+    margin-bottom: 72px;
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .phase-number {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--teal);
+    letter-spacing: 2px;
+    min-width: 32px;
+  }
+  .phase-tag {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 2px;
+  }
+  .phase-tag.daily { background: rgba(200,134,10,0.12); color: var(--amber); }
+  .phase-tag.monthly { background: rgba(61,170,122,0.1); color: var(--teal); }
+  .phase-tag.quarterly { background: rgba(192,57,43,0.1); color: var(--red); }
+  .phase-title {
+    font-family: var(--serif);
+    font-size: 26px;
+    font-weight: 400;
+    color: var(--green);
+    flex: 1;
+  }
+  .phase-date {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    letter-spacing: 1px;
+  }
+
+  /* ── SCENE CARDS ─────────────────────────────────────────────── */
+  .scenes {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .scene {
+    display: grid;
+    grid-template-columns: 3px 1fr;
+    gap: 0 28px;
+    margin-bottom: 4px;
+    animation: fadeUp 0.5s ease both;
+  }
+  .scene:nth-child(1) { animation-delay: 0.05s; }
+  .scene:nth-child(2) { animation-delay: 0.10s; }
+  .scene:nth-child(3) { animation-delay: 0.15s; }
+  .scene:nth-child(4) { animation-delay: 0.20s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .scene-spine {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .scene-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 22px;
+  }
+  .scene-line {
+    width: 1px;
+    flex: 1;
+    background: var(--rule);
+    margin-top: 4px;
+  }
+
+  .scene-card {
+    background: #fff;
+    border-radius: 6px;
+    border: 1px solid var(--rule);
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .scene-card:hover {
+    box-shadow: 0 4px 24px rgba(13,43,30,0.08);
+  }
+
+  .scene-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 22px 14px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .scene-time {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--teal);
+    letter-spacing: 1px;
+    min-width: 70px;
+  }
+  .scene-actor {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .actor-sarah { background: rgba(61,170,122,0.1); color: #1a6645; }
+  .actor-michael { background: rgba(200,134,10,0.1); color: #7a5200; }
+  .actor-admin { background: rgba(120,80,200,0.1); color: #5030a0; }
+  .actor-system { background: rgba(80,80,80,0.1); color: #444; }
+
+  .scene-title {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--ink);
+    flex: 1;
+  }
+
+  .scene-body {
+    padding: 18px 22px 20px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .scene-narrative {
+    font-family: var(--sans);
+    font-size: 14px;
+    color: #3a4a3c;
+    line-height: 1.75;
+    font-weight: 300;
+  }
+  .scene-narrative strong {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .scene-narrative em {
+    font-style: italic;
+    color: var(--gray);
+  }
+
+  .scene-aside {
+    min-width: 220px;
+    max-width: 240px;
+  }
+
+  /* ── SYSTEM BADGE ────────────────────────────────────────────── */
+  .system-badge {
+    border-radius: 4px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+  .system-badge.gl {
+    background: rgba(200,134,10,0.07);
+    border: 1px solid rgba(200,134,10,0.2);
+  }
+  .system-badge.excel {
+    background: rgba(16,124,16,0.07);
+    border: 1px solid rgba(16,124,16,0.2);
+  }
+  .system-badge.admin {
+    background: rgba(120,80,200,0.07);
+    border: 1px solid rgba(120,80,200,0.2);
+  }
+  .system-badge.maybern {
+    background: rgba(61,170,122,0.08);
+    border: 1px solid rgba(61,170,122,0.25);
+  }
+  .system-badge-label {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .gl .system-badge-label { color: var(--amber); }
+  .excel .system-badge-label { color: #0a7a0a; }
+  .admin .system-badge-label { color: #5030a0; }
+  .maybern .system-badge-label { color: var(--teal); }
+
+  .system-badge-name {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .system-badge-desc {
+    font-family: var(--sans);
+    font-size: 11px;
+    color: var(--gray);
+    line-height: 1.5;
+  }
+
+  /* ── PAIN CALLOUT ────────────────────────────────────────────── */
+  .pain-callout {
+    background: rgba(192,57,43,0.05);
+    border-left: 3px solid var(--red);
+    border-radius: 0 4px 4px 0;
+    padding: 12px 16px;
+    margin-top: 14px;
+  }
+  .pain-callout-label {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 3px;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .pain-callout p {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: #6a2020;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  /* ── INSIGHT CALLOUT ─────────────────────────────────────────── */
+  .insight-callout {
+    background: var(--teal-light);
+    border-left: 3px solid var(--teal);
+    border-radius: 0 4px 4px 0;
+    padding: 12px 16px;
+    margin-top: 14px;
+  }
+  .insight-callout-label {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 3px;
+    color: var(--teal);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .insight-callout p {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: #1a5a3a;
+    line-height: 1.6;
+  }
+
+  /* ── EXCEL MOCK ──────────────────────────────────────────────── */
+  .excel-mock {
+    font-family: var(--mono);
+    font-size: 10px;
+    background: #f7fff7;
+    border: 1px solid #c8e6c9;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 10px;
+  }
+  .excel-mock-bar {
+    background: #217346;
+    color: #fff;
+    padding: 4px 8px;
+    font-size: 9px;
+    letter-spacing: 1px;
+  }
+  .excel-mock table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .excel-mock th {
+    background: #e8f5e9;
+    color: #2e7d32;
+    font-size: 8px;
+    padding: 3px 6px;
+    border: 1px solid #c8e6c9;
+    letter-spacing: 1px;
+  }
+  .excel-mock td {
+    padding: 3px 6px;
+    border: 1px solid #c8e6c9;
+    font-size: 9px;
+    color: #333;
+  }
+  .excel-mock td.formula { color: #0000cc; background: #f0f0ff; }
+  .excel-mock td.value { color: #2e7d32; }
+  .excel-mock td.error { color: #c0392b; background: #fff0f0; font-weight: 600; }
+  .excel-mock td.ref { color: #7030a0; }
+
+  /* ── FLOW DIAGRAM ────────────────────────────────────────────── */
+  .flow-diagram {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 16px 22px;
+    background: var(--green);
+    border-radius: 6px;
+    overflow-x: auto;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 16px;
+  }
+  .flow-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.12);
+    min-width: 90px;
+  }
+  .flow-node-label {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+  }
+  .flow-node-name {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 11px;
+    color: #fff;
+    text-align: center;
+  }
+  .flow-node.active {
+    background: rgba(61,170,122,0.2);
+    border-color: rgba(61,170,122,0.4);
+  }
+  .flow-node.active .flow-node-name { color: var(--teal); }
+  .flow-arrow {
+    font-family: var(--mono);
+    color: rgba(255,255,255,0.2);
+    font-size: 14px;
+    padding: 0 4px;
+  }
+  .flow-arrow.active { color: var(--teal); }
+
+  /* ── QUOTE BLOCK ─────────────────────────────────────────────── */
+  .quote-block {
+    padding: 20px 28px;
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--green);
+    border-radius: 0 6px 6px 0;
+    margin: 24px 0;
+  }
+  .quote-block blockquote {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-style: italic;
+    color: var(--green);
+    line-height: 1.6;
+  }
+  .quote-block cite {
+    display: block;
+    margin-top: 8px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    letter-spacing: 1px;
+    font-style: normal;
+  }
+
+  /* ── PHASE DIVIDERS ──────────────────────────────────────────── */
+  .phase-intro {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .phase-intro-icon {
+    font-size: 28px;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .phase-intro-text {
+    font-family: var(--sans);
+    font-size: 13px;
+    color: #4a5a4c;
+    line-height: 1.75;
+    font-weight: 300;
+  }
+  .phase-intro-text strong {
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  /* ── FOOTER ──────────────────────────────────────────────────── */
+  .resolution-bar {
+    background: var(--green);
+    padding: 48px 64px;
+    margin-top: 32px;
+  }
+  .resolution-bar h2 {
+    font-family: var(--serif);
+    font-size: 34px;
+    color: #fff;
+    font-weight: 400;
+    margin-bottom: 20px;
+    max-width: 640px;
+  }
+  .resolution-bar h2 em { color: var(--teal); font-style: italic; }
+  .resolution-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 28px;
+  }
+  .resolution-item {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    padding: 18px 20px;
+  }
+  .resolution-item-label {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 3px;
+    color: var(--teal);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .resolution-item-text {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.65;
+    font-weight: 300;
+  }
+
+  /* ── SEPARATOR ───────────────────────────────────────────────── */
+  .section-sep {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 48px 0;
+  }
+
+  .tag-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .tag {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 2px;
+    background: rgba(13,43,30,0.06);
+    color: var(--gray);
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ MASTHEAD ═══════════════════════════════════════════════════ -->
+<div class="masthead">
+  <div class="masthead-label">Maybern Sales Training · Status Quo Storyboard</div>
+  <h1>A Day in the Life of<br>a <em>Fund Controller</em></h1>
+  <p class="masthead-sub">The real workflow — from GL close to admin reconciliation to LP statements — under the status quo, before Maybern enters the picture. Use this to understand what you're selling into.</p>
+  <div class="fund-badge">
+    <span class="fund-badge-label">Fictional but realistic fund ·</span>
+    <span class="fund-badge-name">Northbrook Capital Partners III, L.P.</span>
+    <span class="fund-badge-label">· $450M PE · European Waterfall · 47 LPs · Allvue GL · Citco Admin</span>
+  </div>
+</div>
+
+<!-- ══ CAST ════════════════════════════════════════════════════════ -->
+<div class="cast-bar">
+  <span class="cast-label">Characters ·</span>
+  <div class="cast-person">
+    <span class="cast-person-name">Sarah Chen</span>
+    <span class="cast-person-role">Fund Controller · 8 yrs experience</span>
+  </div>
+  <div class="cast-divider"></div>
+  <div class="cast-person">
+    <span class="cast-person-name">Michael Torres</span>
+    <span class="cast-person-role">Fund Accountant · reports to Sarah</span>
+  </div>
+  <div class="cast-divider"></div>
+  <div class="cast-person">
+    <span class="cast-person-name">Amanda Walsh</span>
+    <span class="cast-person-role">Client Services · Citco Fund Admin</span>
+  </div>
+  <div class="cast-divider"></div>
+  <div class="cast-person">
+    <span class="cast-person-name">David Park</span>
+    <span class="cast-person-role">CFO · Northbrook Capital</span>
+  </div>
+  <div class="cast-divider"></div>
+  <div class="cast-person">
+    <span class="cast-person-name">Allvue</span>
+    <span class="cast-person-role">General Ledger system</span>
+  </div>
+  <div class="cast-divider"></div>
+  <div class="cast-person">
+    <span class="cast-person-name">Citco</span>
+    <span class="cast-person-role">Fund Administrator</span>
+  </div>
+</div>
+
+<!-- ══ MAIN CONTENT ════════════════════════════════════════════════ -->
+<div class="container">
+<div class="timeline">
+
+<!-- ══════════════════════════════════════════════════════════════
+     ACT I — DAILY LIFE
+════════════════════════════════════════════════════════════════ -->
+<div class="phase-block">
+  <div class="phase-header">
+    <span class="phase-number">01</span>
+    <span class="phase-tag daily">Daily</span>
+    <h2 class="phase-title">The Ordinary Day — Monitoring, Journal Entries & Requests</h2>
+    <span class="phase-date">Any Tuesday, mid-quarter</span>
+  </div>
+
+  <div class="phase-intro">
+    <div class="phase-intro-icon">☀️</div>
+    <div class="phase-intro-text">
+      Most days are not quarter-end. Sarah's daily life is dominated by <strong>journal entry bookkeeping</strong>, answering LP questions, and fielding requests from the deal team. The GL is her system of record — but it was designed for accounting, not for answering "how much carry has accrued?" That question lives somewhere else.
+    </div>
+  </div>
+
+  <div class="scenes">
+    <!-- Scene 1 -->
+    <div class="scene">
+      <div class="scene-spine">
+        <div class="scene-dot" style="background:#3DAA7A;border:2px solid #3DAA7A;width:12px;height:12px;"></div>
+        <div class="scene-line"></div>
+      </div>
+      <div>
+        <div class="scene-card">
+          <div class="scene-header">
+            <span class="scene-time">8:45 AM</span>
+            <span class="scene-actor actor-sarah">Sarah</span>
+            <span class="scene-title">Opens Allvue. Checks yesterday's journal entries.</span>
+          </div>
+          <div class="scene-body">
+            <div>
+              <div class="scene-narrative">
+                Sarah opens Allvue — Northbrook's GL — and checks the prior day's activity. A capital contribution came in from LP #12 (Statewide Pension Fund) yesterday. <strong>Michael posted the journal entry</strong>: debit cash, credit capital contribution. Standard.
+                <br><br>
+                She spots a management fee accrual that needs to be reviewed before month-end. She makes a note but doesn't touch it yet — that's for Michael this afternoon.
+              </div>
+              <div class="insight-callout">
+                <div class="insight-callout-label">What the GL does well</div>
+                <p>Every transaction is recorded cleanly. The capital account balances are correct at the entity level. Allvue knows that $3.2M came in. It does not know — and was never designed to know — what that means for LP #12's waterfall position or carry accrual.</p>
+              </div>
+            </div>
+            <div class="scene-aside">
+              <div class="system-badge gl">
+                <div class="system-badge-label">System</div>
+                <div class="system-badge-name">Allvue (GL)</div>
+                <div class="system-badge-desc">Records cash receipt. Journal entry: Dr Cash / Cr Capital Contribution $3.2M.</div>
+              </div>
+              <div class="tag-row">
+                <span class="tag">journal entry</span>
+                <span class="tag">capital contribution</span>
+                <span class="tag">entity-level</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scene 2 -->
+    <div class="scene">
+      <div class="scene-spine">
+        <div class="scene-dot" style="background:#C8860A;border:2px solid #C8860A;width:12px;height:12px;"></div>
+        <div class="scene-line"></div>
+      </div>
+      <div>
+        <div class="scene-card">
+          <div class="scene-header">
+            <span class="scene-time">10:15 AM</span>
+            <span class="scene-actor actor-michael">Michael</span>
+            <span class="scene-title">Deal team asks: "If Deal IV exits at $180M, what's the carry?"</span>
+          </div>
+          <div class="scene-body">
+            <div>
+              <div class="scene-narrative">
+                The CFO forwards an email from the deal team: they're modeling a potential exit for Portfolio Company IV and want to know what carried interest would accrue to the GP if the exit closes at $180M.
+                <br><br>
+                Michael opens <strong>the waterfall model</strong> — a 1,200-row Excel file Sarah built three years ago. He finds the "Deal IV" tab. Updates the exit proceeds input cell (C14). Checks that the European waterfall formula is still reading the right fund-level capital contribution total. <em>It is, but only because Michael knows to look.</em>
+              </div>
+              <div class="pain-callout">
+                <div class="pain-callout-label">The problem</div>
+                <p>The waterfall Excel is not connected to Allvue. Michael manually typed in the capital contribution total last quarter. If LP #12's contribution yesterday changes the aggregate called capital, the model is already stale — and neither Michael nor Sarah knows it yet.</p>
+              </div>
+              <div class="excel-mock">
+                <div class="excel-mock-bar">Northbrook_CP3_Waterfall_v14_FINAL_v2.xlsx</div>
+                <table>
+                  <tr><th>Cell</th><th>Label</th><th>Value</th></tr>
+                  <tr><td class="ref">C7</td><td>Fund Size (committed)</td><td class="value">$450,000,000</td></tr>
+                  <tr><td class="ref">C13</td><td>Total Capital Called ← HARDCODED</td><td class="error">$312,400,000</td></tr>
+                  <tr><td class="ref">C14</td><td>Deal IV Exit Proceeds</td><td class="formula">=B14*C12</td></tr>
+                  <tr><td class="ref">C32</td><td>Preferred Return (8% ITD)</td><td class="formula">=C13*(1.08^C9)-C13</td></tr>
+                  <tr><td class="ref">C38</td><td>GP Carry (Tier 3)</td><td class="formula">=MAX(0,C36*$C$8)</td></tr>
+                </table>
+              </div>
+            </div>
+            <div class="scene-aside">
+              <div class="system-badge excel">
+                <div class="system-badge-label">System</div>
+                <div class="system-badge-name">Excel</div>
+                <div class="system-badge-desc">Waterfall_v14_FINAL_v2.xlsx — 1,200 rows, built by Sarah 3 years ago. Michael is the only other person who knows how it works.</div>
+              </div>
+              <div style="margin-top:8px;" class="system-badge gl">
+                <div class="system-badge-label">System</div>
+                <div class="system-badge-name">Allvue</div>
+                <div class="system-badge-desc">Has the real capital called number. Not connected to the Excel. Never has been.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scene 3 -->
+    <div class="scene">
+      <div class="scene-spine">
+        <div class="scene-dot" style="background:#C8860A;border:2px solid #C8860A;width:12px;height:12px;"></div>
+        <div class="scene-line"></div>
+      </div>
+      <div>
+        <div class="scene-card">
+          <div class="scene-header">
+            <span class="scene-time">2:30 PM</span>
+            <span class="scene-actor actor-sarah">Sarah</span>
+            <span class="scene-title">LP #7 asks for their current capital account balance and carry accrual</span>
+          </div>
+          <div class="scene-body">
+            <div>
+              <div class="scene-narrative">
+                Allspring Endowment (LP #7) sends a routine request: they want their current capital account balance, ITD distributions, and accrued hypothetical carry for their internal reporting.
+                <br><br>
+                The capital account balance is in Allvue — Sarah can pull that. But the <strong>LP-level carry accrual is not in Allvue</strong>. She goes back to the waterfall Excel, finds LP #7's commitment tab, and manually traces through the waterfall tiers to produce a number. Then she emails it.
+                <br><br>
+                <em>This takes 45 minutes. It should take 2.</em>
+              </div>
+              <div class="pain-callout">
+                <div class="pain-callout-label">The gap</div>
+                <p>The GL holds accounting data at the entity level. LP-level economics — who has earned what, when, and based on what calculation — live nowhere except Sarah's Excel. There is no system of record for this. If Sarah leaves, this knowledge leaves with her.</p>
+              </div>
+            </div>
+            <div class="scene-aside">
+              <div class="system-badge gl">
+                <div class="system-badge-label">Allvue answers</div>
+                <div class="system-badge-name">Capital account balance ✓</div>
+                <div class="system-badge-desc">GL has contribution and distribution history at the fund entity level.</div>
+              </div>
+              <div style="margin-top:8px;" class="system-badge excel">
+                <div class="system-badge-label">Excel answers</div>
+                <div class="system-badge-name">Carry accrual ✓ (manually)</div>
+                <div class="system-badge-desc">LP-level carry calculation. Only Sarah and Michael can interpret the output. No audit trail.</div>
+              </div>
+              <div style="margin-top:8px;" class="system-badge admin">
+                <div class="system-badge-label">Citco can't answer</div>
+                <div class="system-badge-name">No visibility into GP calc</div>
+                <div class="system-badge-desc">Admin produces their own NAV and statements — but based on GP-supplied numbers, not independently calculated carry.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     ACT II — MONTH-END CLOSE
+════════════════════════════════════════════════════════════════ -->
+<div class="phase-block">
+  <div class="phase-header">
+    <span class="phase-number">02</span>
+    <span class="phase-tag monthly">Monthly</span>
+    <h2 class="phase-title">Month-End Close — The GL Books, Fees Accrue, Ops Gets Involved</h2>
+    <span class="phase-date">Last 3 business days of the month</span>
+  </div>
+
+  <div class="phase-intro">
+    <div class="phase-intro-icon">📅</div>
+    <div class="phase-intro-text">
+      Monthly close is manageable — it's mainly <strong>management fee accruals, expense reconciliations, and making sure Allvue balances</strong>. The admin isn't heavily involved yet. But it's the month-end that sets up the pain of quarter-end: any entry posted in the GL this month will need to be reconciled to the admin's numbers in about 8 weeks.
+    </div>
+  </div>
+
+  <div class="scenes">
+    <!-- Scene 4 -->
+    <div class="scene">
+      <div class="scene-spine">
+        <div class="scene-dot" style="background:#C8860A;border:2px solid #C8860A;width:12px;height:12px;"></div>
+        <div class="scene-line"></div>
+      </div>
+      <div>
+        <div class="scene-card">
+          <div class="scene-header">
+            <span class="scene-time">Day -3 of month</span>
+            <span class="scene-actor actor-michael">Michael</span>
+            <span class="scene-title">Management fee accrual — GL entry, then Excel update</span>
+          </div>
+          <div class="scene-body">
+            <div>
+              <div class="scene-narrative">
+                Michael calculates the monthly management fee: <strong>2% annual on committed capital, pro-rated monthly</strong>. He posts a journal entry in Allvue (Dr Management Fee Expense / Cr Management Fee Payable). Then — separately, manually — he opens the waterfall Excel and updates the cumulative management fees paid cell.
+                <br><br>
+                Two systems, two entries, zero automated connection.
+              </div>
+              <div class="flow-diagram">
+                <div class="flow-node active"><div class="flow-node-label">Step 1</div><div class="flow-node-name">Michael calculates fee in Excel</div></div>
+                <div class="flow-arrow active">→</div>
+                <div class="flow-node active"><div class="flow-node-label">Step 2</div><div class="flow-node-name">Posts JE in Allvue</div></div>
+                <div class="flow-arrow active">→</div>
+                <div class="flow-node active"><div class="flow-node-label">Step 3</div><div class="flow-node-name">Manually updates waterfall Excel</div></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-node"><div class="flow-node-label">Risk</div><div class="flow-node-name">Two versions now exist. Which is right?</div></div>
+              </div>
+            </div>
+            <div class="scene-aside">
+              <div class="system-badge gl">
+                <div class="system-badge-label">Allvue records</div>
+                <div class="system-badge-name">Fee accrual JE</div>
+                <div class="system-badge-desc">Dr Mgmt Fee Expense $750,000 / Cr Mgmt Fee Payable $750,000</div>
+              </div>
+              <div style="margin-top:8px;" class="system-badge excel">
+                <div class="system-badge-label">Excel updated separately</div>
+                <div class="system-badge-name">Cumulative fees cell</div>
+                <div class="system-badge-desc">Cell C18 in waterfall model: manually typed by Michael. No formula connecting to Allvue.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scene 5 -->
+    <div class="scene">
+      <div class="scene-spine">
+        <div class="scene-dot" style="background:#3DAA7A;border:2px solid #3DAA7A;width:12px;height:12px;"></div>
+        <div class="scene-line"></div>
+      </div>
+      <div>
+        <div class="scene-card">
+          <div class="scene-header">
+            <span class="scene-time">Day -1 of month</span>
+            <span class="scene-actor actor-sarah">Sarah</span>
+            <span class="scene-title">Month-end review — trial balance ties, Allvue closes</span>
+          </div>
+          <div class="scene-body">
+            <div>
+              <div class="scene-narrative">
+                Sarah reviews the trial balance in Allvue. Everything ties. She marks the period closed. The GL is correct.
+                <br><br>
+                But she knows that this month's data — capital calls, fee accruals, investment PnL — will need to be sent to <strong>Citco</strong> at quarter-end. Citco will use it to produce LP statements. Citco will also run their own NAV calculation. And those two numbers — Citco's NAV and the number in her waterfall Excel — are often different on the first pass.
+                <br><br>
+                <em>"Every quarter we spend two weeks reconciling with the admin. It's fine. That's just how this works."</em>
+              </div>
+              <div class="insight-callout">
+                <div class="insight-callout-label">What Sarah is already anticipating</div>
+                <p>The month-end close is clean. The problem she's already dreading is 6 weeks away: when Citco sends their preliminary NAV and it doesn't match hers, and she has to figure out why — usually at 9pm the week statements are due.</p>
+              </div>
+            </div>
+            <div class="scene-aside">
+              <div class="system-badge gl">
+                <div class="system-badge-label">Status</div>
+                <div class="system-badge-name">Allvue closed ✓</div>
+                <div class="system-badge-desc">Trial balance ties. Period locked. Data correct at entity level.</div>
+              </div>
+              <div style="margin-top:8px;" class="system-badge admin">
+                <div class="system-badge-label">Status</div>
+                <div class="system-badge-name">Citco: not involved yet</div>
+                <div class="system-badge-desc">Citco gets quarterly data, not monthly. Their process hasn't started.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     ACT III — QUARTER-END: THE REAL STORY
+════════════════════════════════════════════════════════════════ -->
+<div class="phase-block">
+  <div class="phase-header">
+    <span class="phase-number">03</span>
+    <span class="phase-tag quarterly">Quarterly</span>
+    <h2 class="phase-title">Quarter-End Close — Where Everything Gets Hard</h2>
+    <span class="phase-date">Weeks 1–5 after quarter end</span>
+  </div>
+
+  <div class="phase-intro">
+    <div class="phase-intro-icon">🔥</div>
+    <div class="phase-intro-text">
+      This is where Sarah and Michael earn their salary — and where the fragility of the status quo becomes visible. <strong>Five moving pieces have to land simultaneously:</strong> investment valuations from the deal team, NAV calculation, hypothetical waterfall, fund performance metrics, and LP statements. Everything depends on everything else. And most of it runs through one Excel file that no one else fully understands.
+    </div>
+  </div>
+
+  <div class="scenes">
+
+    <!-- Scene: Week 1 — Valuations -->
+    <div class="scene">
+      <div class="scene-spine">
+        <div class="scene-dot" style="background:#C0392B;border:2px solid #C0392B;width:14px;height:14px;"></div>
+        <div class="scene-line"></div>
+      </div>
+      <div>
+        <div class="scene-card">
+          <div class="scene-header">
+            <span class="scene-time">Week 1 · Day 2</span>
+            <span class="scene-actor actor-sarah">Sarah</span>
+            <span class="scene-title">Valuation committee sets FMVs. Sarah has to translate them to Unrealized G/L.</span>
+          </div>
+          <div class="scene-body">
+            <div>
+              <div class="scene-narrative">
+                The deal partners send over updated Fair Market Values for each unrealized portfolio company. Sarah's job: convert each FMV into an <strong>Unrealized Gain/Loss</strong> — which means calculating the change from the prior quarter's FMV, adjusted for any additional cost basis changes.
+                <br><br>
+                She does this in a separate Excel tab. For each of Northbrook's 8 portfolio companies, she calculates: <em>FMV today − prior FMV − new investment = Unrealized G/L this quarter</em>. Then she manually posts each one as a PnL journal entry in Allvue.
+                <br><br>
+                <strong>This calculation must happen before NAV can be calculated, before the hypo waterfall can run, and before Citco can begin producing statements.</strong> Everything is downstream of this.
+              </div>
+              <div class="flow-diagram">
+                <div class="flow-node active"><div class="flow-node-label">Input</div><div class="flow-node-name">FMVs from deal team</div></div>
+                <div class="flow-arrow active">→</div>
+                <div class="flow-node active"><div class="flow-node-label">Sarah</div><div class="flow-node-name">Calculates U/G/L in Excel</div></div>
+                <div class="flow-arrow active">→</div>
+                <div class="flow-node active"><div class="flow-node-label">Allvue</div><div class="flow-node-name">PnL JE posted per deal</div></div>
+                <div class="flow-arrow active">→</div>
+                <div class="flow-node active"><div class="flow-node-label">NAV</div><div class="flow-node-name">Can now be calculated</div></div>
+                <div class="flow-arrow active">→</div>
+                <div class="flow-node active"><div class="flow-node-label">Hypo</div><div class="flow-node-name">Waterfall can now run</div></div>
+              </div>
+              <div class="pain-callout">
+                <div class="pain-callout-label">What breaks here</div>
+                <p>If the deal team revises an FMV after Sarah has already run the waterfall — which happens about 40% of the time — she has to rerun everything manually. There's no automated recalculation. Each rerun takes 3–4 hours.</p>
+              </div>
+            </div>
+            <div class="scene-aside">
+              <div class="system-badge excel">
+                <div class="system-badge-label">FMV → U/G/L</div>
+                <div class="system-badge-name">Deal valuation tab</div>
+                <div class="system-badge-desc">8 portfolio companies. Sarah calculates each Unrealized G/L manually from FMV inputs.</div>
+              </div>
+              <div style="margin-top:8px;" class="system-badge gl">
+                <div class="system-badge-label">Result</div>
+                <div class="system-badge-name">8 PnL JEs posted</div>
+                <div class="system-badge-desc">Allvue now reflects current period unrealized gains and losses. Books balance.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scene: NAV Calc -->
+    <div class="scene">
+      <div class="scene-spine">
+        <div class="scene-dot" style="background:#C0392B;border:2px solid #C0392B;width:14px;height:14px;"></div>
+        <div class="scene-line"></div>
+      </div>
+      <div>
+        <div class="scene-card">
+          <div class="scene-header">
+            <span class="scene-time">Week 1 · Day 4</span>
+            <span class="scene-actor actor-michael">Michael</span>
+            <span class="scene-title">NAV calculation — the number every LP cares about</span>
+          </div>
+          <div class="scene-body">
+            <div>
+              <div class="scene-narrative">
+                Michael runs the NAV calculation. He pulls the trial balance from Allvue — total capital contributions, total distributions, total PnL (realized + unrealized) — and builds a NAV Walk in Excel.
+                <br><br>
+                <strong>Prior NAV + capital contributions − distributions + PnL = Current NAV (pre-carry).</strong>
+                <br><br>
+                Then he calculates hypothetical carry. This requires running the waterfall — that same 1,200-row Excel file — against the current pre-carry NAV to estimate what the GP would be owed <em>if the fund liquidated today</em>. Post-carry NAV = the number LPs actually care about for their quarterly statements.
+                <br><br>
+                He emails Sarah a summary. She reviews it. They both agree the numbers look right. <em>But neither can easily explain to an auditor exactly how each component was derived.</em>
+              </div>
+              <div class="excel-mock">
+                <div class="excel-mock-bar">Northbrook_CP3_NAV_Walk_Q3_2025.xlsx</div>
+                <table>
+                  <tr><th>Line Item</th><th>Amount</th><th>Source</th></tr>
+                  <tr><td>Prior Period Ending NAV</td><td class="value">$287,400,000</td><td class="ref">Prior quarter</td></tr>
+                  <tr><td>+ Capital Contributions</td><td class="value">$12,300,000</td><td class="ref">← Allvue TB</td></tr>
+                  <tr><td>− Distributions</td><td class="value">$(8,500,000)</td><td class="ref">← Allvue TB</td></tr>
+                  <tr><td>+ Unrealized G/L</td><td class="value">$14,200,000</td><td class="ref">← Valuation tab</td></tr>
+                  <tr><td>+ Realized G/L</td><td class="value">$3,100,000</td><td class="ref">← Allvue TB</td></tr>
+                  <tr><td>− Mgmt Fees</td><td class="value">$(2,250,000)</td><td class="ref">← Allvue TB</td></tr>
+                  <tr><td><strong>Pre-Carry NAV</strong></td><td class="value"><strong>$306,250,000</strong></td><td class="formula">=SUM above</td></tr>
+                  <tr><td>− Hypo Carry Accrual</td><td class="value">$(11,400,000)</td><td class="ref">← Waterfall Excel</td></tr>
+                  <tr><td><strong>Post-Carry NAV</strong></td><td class="value"><strong>$294,850,000</strong></td><td class="formula">=B9−B10</td></tr>
+                </table>
+              </div>
+            </div>
+            <div class="scene-aside">
+              <div class="system-badge gl">
+                <div class="system-badge-label">Allvue provides</div>
+                <div class="system-badge-name">Trial balance inputs</div>
+                <div class="system-badge-desc">Contributions, distributions, realized G/L, fees. Each line pulled manually from the TB report.</div>
+              </div>
+              <div style="margin-top:8px;" class="system-badge excel">
+                <div class="system-badge-label">Excel provides</div>
+                <div class="system-badge-name">Hypo carry accrual</div>
+                <div class="system-badge-desc">$11.4M accrued GP carry. Lives only in the waterfall model. Not in Allvue. No connection between the two.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scene: Citco Arrives -->
+    <div class="scene">
+      <div class="scene-spine">
+        <div class="scene-dot" style="background:#7030a0;border:2px solid #7030a0;width:14px;height:14px;"></div>
+        <div class="scene-line"></div>
+      </div>
+      <div>
+        <div class="scene-card">
+          <div class="scene-header">
+            <span class="scene-time">Week 2 · Day 1</span>
+            <span class="scene-actor actor-admin">Admin (Citco)</span>
+            <span class="scene-title">Citco sends their preliminary NAV. It's $2.1M different from Sarah's.</span>
+          </div>
+          <div class="scene-body">
+            <div>
+              <div class="scene-narrative">
+                Amanda at Citco emails over their preliminary NAV: <strong>$292,740,000</strong>. Sarah's number was <strong>$294,850,000</strong>. A $2.1M discrepancy.
+                <br><br>
+                Sarah is not panicked — this happens every quarter on the first pass. But now begins the reconciliation process. She and Michael spend the next <strong>two days</strong> going line by line, comparing:
+              </div>
+              <div style="margin-top: 14px;">
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                  <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:rgba(192,57,43,0.05);border:1px solid rgba(192,57,43,0.15);border-radius:4px;">
+                    <span style="font-family:var(--mono);font-size:11px;color:#C0392B;min-width:80px;">$800K diff</span>
+                    <span style="font-family:var(--sans);font-size:12px;color:#444;line-height:1.5;">Citco accrued management fees using a different day count convention (365 vs 360). Neither is wrong — just different.</span>
+                  </div>
+                  <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:rgba(192,57,43,0.05);border:1px solid rgba(192,57,43,0.15);border-radius:4px;">
+                    <span style="font-family:var(--mono);font-size:11px;color:#C0392B;min-width:80px;">$1.1M diff</span>
+                    <span style="font-family:var(--sans);font-size:12px;color:#444;line-height:1.5;">Citco used a different FMV for Portfolio Company VI — they hadn't received the updated valuation committee memo yet.</span>
+                  </div>
+                  <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:rgba(200,134,10,0.05);border:1px solid rgba(200,134,10,0.15);border-radius:4px;">
+                    <span style="font-family:var(--mono);font-size:11px;color:#C8860A;min-width:80px;">$200K diff</span>
+                    <span style="font-family:var(--sans);font-size:12px;color:#7a5200;line-height:1.5;">Timing — a distribution wire hit Citco's books one day after Sarah's cutoff. Expected, now confirmed.</span>
+                  </div>
+                </div>
+              </div>
+              <div class="pain-callout">
+                <div class="pain-callout-label">The deeper problem</div>
+                <p>Citco and the GP are running parallel calculations with different assumptions, different data, and no shared source of truth for the waterfall math. This reconciliation is normal — but "normal" is the problem. It's two to three days of Sarah and Michael's time every quarter, every fund.</p>
+              </div>
+            </div>
+            <div class="scene-aside">
+              <div class="system-badge admin">
+                <div class="system-badge-label">Citco NAV</div>
+                <div class="system-badge-name">$292,740,000</div>
+                <div class="system-badge-desc">Citco's independently calculated NAV. Uses their own models, their own data, their own assumptions.</div>
+              </div>
+              <div style="margin-top:8px;" class="system-badge excel">
+                <div class="system-badge-label">GP NAV (Sarah's Excel)</div>
+                <div class="system-badge-name">$294,850,000</div>
+                <div class="system-badge-desc">$2.1M higher. Neither number is necessarily wrong. The gap must be explained and agreed.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scene: The LP Statement Problem -->
+    <div class="scene">
+      <div class="scene-spine">
+        <div class="scene-dot" style="background:#C0392B;border:2px solid #C0392B;width:14px;height:14px;"></div>
+        <div class="scene-line"></div>
+      </div>
+      <div>
+        <div class="scene-card">
+          <div class="scene-header">
+            <span class="scene-time">Week 3 · Day 2</span>
+            <span class="scene-actor actor-admin">Amanda (Citco)</span>
+            <span class="scene-title">LP statements ready — but carry number came from Sarah's email, not a system</span>
+          </div>
+          <div class="scene-body">
+            <div>
+              <div class="scene-narrative">
+                After reconciliation is complete, Sarah emails Amanda the agreed-upon numbers: final NAV, hypo carry accrual per LP, and the fund-level carry breakdown. Amanda plugs these into Citco's statement system and produces LP capital account statements for all 47 investors.
+                <br><br>
+                <strong>The carry number that lands in every LP's statement is a number that came from a 1,200-row Excel file, emailed as an attachment, entered manually into Citco's system by Amanda.</strong>
+                <br><br>
+                If Sarah had made a formula error in the waterfall model — say, the catch-up rate was referencing the wrong cell — that error is now in 47 LP statements. It has been reviewed by Sarah, spot-checked by Michael, and accepted by Amanda. No one ran an independent check.
+              </div>
+              <div class="flow-diagram">
+                <div class="flow-node active"><div class="flow-node-label">Sarah's Excel</div><div class="flow-node-name">Carry calc</div></div>
+                <div class="flow-arrow active">→</div>
+                <div class="flow-node active"><div class="flow-node-label">Email to Citco</div><div class="flow-node-name">PDF attachment</div></div>
+                <div class="flow-arrow active">→</div>
+                <div class="flow-node active"><div class="flow-node-label">Amanda</div><div class="flow-node-name">Manual entry</div></div>
+                <div class="flow-arrow active">→</div>
+                <div class="flow-node active"><div class="flow-node-label">47 LP Statements</div><div class="flow-node-name">Sent to investors</div></div>
+              </div>
+            </div>
+            <div class="scene-aside">
+              <div class="system-badge admin">
+                <div class="system-badge-label">Citco</div>
+                <div class="system-badge-name">LP statements issued</div>
+                <div class="system-badge-desc">47 capital account statements. Carry figures sourced from Sarah's emailed Excel output.</div>
+              </div>
+              <div class="pain-callout" style="margin-top:8px;">
+                <div class="pain-callout-label">Chain of custody</div>
+                <p>Excel → Email → Manual entry → LP statement. Every link in this chain is a place an error can enter — and go undetected.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scene: The Audit -->
+    <div class="scene">
+      <div class="scene-spine">
+        <div class="scene-dot" style="background:#C0392B;border:2px solid #C0392B;width:14px;height:14px;"></div>
+        <div class="scene-line"></div>
+      </div>
+      <div>
+        <div class="scene-card">
+          <div class="scene-header">
+            <span class="scene-time">Week 5 · Ongoing</span>
+            <span class="scene-actor actor-sarah">Sarah</span>
+            <span class="scene-title">Auditor asks: "Can you show me the waterfall calculation and how it ties to your GL?"</span>
+          </div>
+          <div class="scene-body">
+            <div>
+              <div class="scene-narrative">
+                Ernst & Young is doing the annual audit. The audit manager sends a request: please provide documentation of the waterfall calculation methodology, the assumptions used, and how the carry figure ties to the trial balance.
+                <br><br>
+                Sarah opens the Excel model and starts building a memo. She has to manually trace every hardcoded cell, explain every formula assumption, and construct a bridge from her waterfall output back to the Allvue trial balance.
+                <br><br>
+                <strong>This takes three days.</strong> Every year. The auditors accept it. But every year, the partner on the engagement writes a management letter comment: <em>"The fund's waterfall calculations rely on a manual Excel model without automated controls. We recommend implementing a system-based solution."</em>
+                <br><br>
+                David (CFO) reads it. Files it. Moves on. <em>Until the year he doesn't.</em>
+              </div>
+              <div class="insight-callout">
+                <div class="insight-callout-label">The audit letter is your sales opening</div>
+                <p>When a prospect says "our auditors have commented on our Excel models" — that's the trigger. That management letter is them telling you they already know the problem. The question is whether they've found the urgency to do something about it.</p>
+              </div>
+            </div>
+            <div class="scene-aside">
+              <div class="system-badge gl">
+                <div class="system-badge-label">What auditors want</div>
+                <div class="system-badge-name">GL tie-out to carry calc</div>
+                <div class="system-badge-desc">Proof that the carry number in the statements is derived from and consistent with the GL books. Currently: manual bridge, 3-day exercise.</div>
+              </div>
+              <div style="margin-top:8px;" class="system-badge maybern">
+                <div class="system-badge-label">What Maybern provides</div>
+                <div class="system-badge-name">Automated audit trail</div>
+                <div class="system-badge-desc">Every waterfall run is logged, versioned, and traceable back to the input data — with GL integration eliminating the manual bridge.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     ACT IV — BREAKING POINT
+════════════════════════════════════════════════════════════════ -->
+<div class="phase-block">
+  <div class="phase-header">
+    <span class="phase-number">04</span>
+    <span class="phase-tag quarterly">Critical Moment</span>
+    <h2 class="phase-title">The Breaking Point — When the Status Quo Fails</h2>
+    <span class="phase-date">Any quarter. Every fund has this eventually.</span>
+  </div>
+
+  <div class="phase-intro">
+    <div class="phase-intro-icon">⚡</div>
+    <div class="phase-intro-text">
+      The status quo works — until it doesn't. These are the scenarios that create urgency. They're not hypotheticals. Every fund controller you'll speak to has either experienced one of these or is quietly terrified they will.
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px;">
+    <div class="scene-card">
+      <div class="scene-header">
+        <span class="scene-actor actor-michael">Michael</span>
+        <span class="scene-title" style="color:#C0392B;">Michael leaves the firm</span>
+      </div>
+      <div style="padding:18px 22px;">
+        <p class="scene-narrative">Michael built three tabs of the waterfall model over two years. He's the only person who can explain the catch-up formula logic. He leaves in two weeks. Sarah is now sole owner of a model she partially understands and cannot safely hand to a new hire without six months of knowledge transfer. The knowledge walked out the door.</p>
+        <div class="pain-callout">
+          <div class="pain-callout-label">The question to ask</div>
+          <p>"Who runs the waterfall model today — and what happens to that process if that person isn't available?"</p>
+        </div>
+      </div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-header">
+        <span class="scene-actor actor-sarah">Sarah</span>
+        <span class="scene-title" style="color:#C0392B;">An LP disputes their carry accrual</span>
+      </div>
+      <div style="padding:18px 22px;">
+        <p class="scene-narrative">A large pension fund LP comes back after receiving their statement and questions the $4.2M carry accrual on their commitment. Sarah has to go back to Excel version 14, trace through the catch-up tier math, and explain why that number is correct. She finds a formula reference error. It's small — $40K — but it's real. Restatement discussion begins.</p>
+        <div class="pain-callout">
+          <div class="pain-callout-label">The question to ask</div>
+          <p>"Has there ever been a moment where you weren't fully confident the numbers were right before they went out?"</p>
+        </div>
+      </div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-header">
+        <span class="scene-actor actor-system">Fund Growth</span>
+        <span class="scene-title" style="color:#C0392B;">Northbrook closes Fund IV — new vehicle, same Excel</span>
+      </div>
+      <div style="padding:18px 22px;">
+        <p class="scene-narrative">Northbrook raises Fund IV, a new vehicle with slightly different waterfall terms — a tiered carry structure with an IRR hurdle instead of a pref. Sarah copies the Fund III Excel and starts modifying. Eight months later, she's not sure if the Fund IV model is calculating the IRR hurdle correctly. The admin sends a different number. Nobody is certain who is right.</p>
+        <div class="pain-callout">
+          <div class="pain-callout-label">The question to ask</div>
+          <p>"When you add a new vehicle, does someone have to go rebuild the Excel, or does it just extend?"</p>
+        </div>
+      </div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-header">
+        <span class="scene-actor actor-admin">Citco</span>
+        <span class="scene-title" style="color:#C0392B;">Admin and GP carry numbers diverge by $5M</span>
+      </div>
+      <div style="padding:18px 22px;">
+        <p class="scene-narrative">On the Q4 close — the biggest quarter of the year with two portfolio company distributions — Citco's carry number is $5.2M lower than Sarah's. It's not a reconcilable timing difference. Citco used a different interpretation of the LPA's catch-up provision. Both interpretations are defensible. Lawyers get involved. LP statements are delayed by 3 weeks. David (CFO) is not pleased.</p>
+        <div class="pain-callout">
+          <div class="pain-callout-label">The question to ask</div>
+          <p>"How does your team confirm that your waterfall calculation is consistent with what your admin is producing?"</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end timeline -->
+</div><!-- end container -->
+
+<!-- ══ RESOLUTION BAR ══════════════════════════════════════════════ -->
+<div class="resolution-bar">
+  <h2>Where <em>Maybern</em> enters the story</h2>
+  <p style="font-family:var(--sans);font-size:14px;color:rgba(255,255,255,0.5);font-weight:300;max-width:640px;line-height:1.75;">
+    Not instead of the GL. Not instead of the admin. In the gap between them — owning the calculation layer that has always lived in Excel and in Sarah's head.
+  </p>
+  <div class="resolution-grid">
+    <div class="resolution-item">
+      <div class="resolution-item-label">What Maybern replaces</div>
+      <div class="resolution-item-text">The 1,200-row Excel waterfall model. The manual data bridge from GL to carry calculation. The emailed PDF that becomes the LP statement input. The 3-day audit bridge exercise.</div>
+    </div>
+    <div class="resolution-item">
+      <div class="resolution-item-label">What Maybern doesn't replace</div>
+      <div class="resolution-item-text">The GL (Allvue, Intacct, NetSuite). The admin (Citco, SS&C, Apex). Sarah and Michael's judgment. The LPA terms. The audit itself. Maybern sits between these — it doesn't replace them.</div>
+    </div>
+    <div class="resolution-item">
+      <div class="resolution-item-label">The one-line pitch</div>
+      <div class="resolution-item-text">"Your GL records what happened. Your admin reports it. Maybern is where you prove it — before anyone asks."</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
