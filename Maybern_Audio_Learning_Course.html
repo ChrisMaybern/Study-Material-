@@ -634,6 +634,93 @@
 </head>
 <body>
 
+<!-- Password Gate -->
+<div id="password-gate" style="
+  position: fixed; inset: 0; z-index: 9999;
+  background: #091D13;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-family: Inter, sans-serif;
+">
+  <div style="text-align:center; max-width:380px; width:90%; animation: gate-in 0.8s ease forwards;">
+    <div style="font-size:10px; letter-spacing:5px; text-transform:uppercase; color:#22C55E; font-weight:600; margin-bottom:24px; opacity:0.9;">Maybern</div>
+    <div style="font-family:Georgia,serif; font-size:28px; font-weight:400; color:#ECFFF5; margin-bottom:8px; line-height:1.2;">Audio Learning Course</div>
+    <div style="font-size:13px; color:#ECFFF5; opacity:0.45; margin-bottom:48px; font-weight:300;">Private Funds, Ecosystem &amp; Product</div>
+    <div style="width:40px; height:2px; background:#22C55E; margin:0 auto 40px; border-radius:2px;"></div>
+    <input id="pw-input" type="password" placeholder="Enter password"
+      style="
+        width:100%; padding:14px 20px; border-radius:8px;
+        border:1px solid rgba(255,255,255,0.15);
+        background:rgba(255,255,255,0.05);
+        color:#ECFFF5; font-size:15px; font-family:Inter,sans-serif;
+        outline:none; text-align:center; letter-spacing:2px;
+        transition:border-color 0.2s ease;
+        margin-bottom:12px;
+      "
+    />
+    <div id="pw-error" style="font-size:12px; color:#EF4444; opacity:0; height:16px; margin-bottom:12px; transition:opacity 0.2s ease;">Incorrect password. Try again.</div>
+    <button id="pw-btn"
+      style="
+        width:100%; padding:14px; border-radius:8px; border:none;
+        background:#22C55E; color:#091D13;
+        font-size:14px; font-weight:600; font-family:Inter,sans-serif;
+        cursor:pointer; letter-spacing:0.5px;
+        transition:transform 0.15s ease, box-shadow 0.15s ease;
+      "
+      onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(34,197,94,0.3)'"
+      onmouseout="this.style.transform='';this.style.boxShadow=''"
+    >Enter Course</button>
+    <div style="font-size:10px; letter-spacing:1px; color:#ECFFF5; opacity:0.2; margin-top:32px; text-transform:uppercase;">Confidential · Maybern 2026</div>
+  </div>
+</div>
+<style>
+  @keyframes gate-in {
+    from { opacity:0; transform:translateY(24px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  #pw-input:focus { border-color: rgba(34,197,94,0.6) !important; }
+</style>
+<script>
+  (function() {
+    var CORRECT = 'winning 2026';
+    var gate = document.getElementById('password-gate');
+    var input = document.getElementById('pw-input');
+    var btn = document.getElementById('pw-btn');
+    var err = document.getElementById('pw-error');
+
+    // Check session
+    if (sessionStorage.getItem('mb_auth') === '1') {
+      gate.style.display = 'none';
+      return;
+    }
+
+    function attempt() {
+      if (input.value === CORRECT) {
+        sessionStorage.setItem('mb_auth', '1');
+        gate.style.transition = 'opacity 0.5s ease';
+        gate.style.opacity = '0';
+        setTimeout(function() { gate.style.display = 'none'; }, 500);
+      } else {
+        err.style.opacity = '1';
+        input.value = '';
+        input.style.borderColor = 'rgba(239,68,68,0.6)';
+        setTimeout(function() {
+          err.style.opacity = '0';
+          input.style.borderColor = 'rgba(255,255,255,0.15)';
+        }, 2000);
+        input.focus();
+      }
+    }
+
+    btn.addEventListener('click', attempt);
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') attempt();
+    });
+    input.focus();
+  })();
+</script>
+
+
 <!-- Progress Bar -->
 <div id="progress-bar"></div>
 
