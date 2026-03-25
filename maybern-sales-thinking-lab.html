@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maybern · Sales Thinking Lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <script>
+  // ── PASSWORD GATE ──
+  (function() {
+    // SHA-256 of "winning 2026"
+    const HASH = "a775ba7ba11498752aaca9feb1785cfb6ce12362bb1959c1912dcb9cc9fcc823";
+    async function sha256(msg) {
+      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(msg));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+    }
+    async function checkAccess() {
+      const stored = sessionStorage.getItem("msl_auth");
+      if (stored === HASH) { document.getElementById("gate").style.display = "none"; document.getElementById("app").style.display = "flex"; return; }
+      document.getElementById("gate").style.display = "flex";
+      document.getElementById("app").style.display = "none";
+    }
+    window.unlockApp = async function() {
+      const val = document.getElementById("pw-input").value;
+      const h = await sha256(val);
+      if (h === HASH) {
+        sessionStorage.setItem("msl_auth", h);
+        document.getElementById("gate").style.display = "none";
+        document.getElementById("app").style.display = "flex";
+        document.getElementById("pw-err").style.opacity = "0";
+      } else {
+        document.getElementById("pw-input").value = "";
+        document.getElementById("pw-err").style.opacity = "1";
+        document.getElementById("pw-input").classList.add("shake");
+        setTimeout(() => document.getElementById("pw-input").classList.remove("shake"), 500);
+      }
+    };
+    window.addEventListener("DOMContentLoaded", checkAccess);
+    window.pwKeydown = function(e) { if (e.key === "Enter") window.unlockApp(); };
+  })();
+  </script>
+  <style>
+    :root {
+      --deep-green:   #091D13;
+      --dark-green:   #092115;
+      --green:        #17412D;
+      --mint:         #ECFFF5;
+      --light-mint:   #F6FFFA;
+      --accent:       #2ECC71;
+      --accent-dim:   rgba(46,204,113,0.15);
+      --text-muted:   rgba(236,255,245,0.5);
+      --text-mid:     rgba(236,255,245,0.75);
+      --border:       rgba(236,255,245,0.1);
+      --border-mid:   rgba(236,255,245,0.2);
+      --card-bg:      rgba(9,33,21,0.7);
+      --warn:         #E67E22;
+      --danger:       #E74C3C;
+      --purple:       #8E44AD;
+      --blue:         #2980B9;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--deep-green);
+      color: var(--mint);
+      min-height: 100vh;
+      display: flex;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 256px;
+      min-height: 100vh;
+      background: var(--dark-green);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+      overflow-y: auto;
+    }
+    .sidebar-header {
+      padding: 22px 20px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .sidebar-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--mint);
+    }
+    .sidebar-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .sidebar-nav { padding: 12px 0; flex: 1; }
+    .nav-section {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(236,255,245,0.3);
+      padding: 10px 20px 6px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 20px;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+    }
+    .nav-item:hover { background: rgba(236,255,245,0.04); border-left-color: var(--border-mid); }
+    .nav-item.active { background: rgba(23,65,45,0.55); border-left-color: var(--accent); }
+    .nav-num {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: rgba(236,255,245,0.1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+      color: var(--text-muted);
+    }
+    .nav-item.active .nav-num { background: var(--accent); color: var(--dark-green); }
+    .nav-item.done .nav-num { background: rgba(46,204,113,0.25); color: var(--accent); }
+    .nav-label { font-size: 12.5px; font-weight: 500; color: var(--text-mid); }
+    .nav-item.active .nav-label { color: var(--mint); font-weight: 600; }
+    .nav-sub-label { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+    .score-panel {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+    }
+    .score-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 7px; font-weight: 600; }
+    .score-track { background: rgba(236,255,245,0.1); border-radius: 4px; height: 5px; overflow: hidden; margin-bottom: 6px; }
+    .score-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.5s ease; width: 0%; }
+    .score-val { font-size: 13px; font-weight: 600; color: var(--mint); }
+
+    /* ── MAIN ── */
+    .main { margin-left: 256px; flex: 1; padding: 40px 44px; max-width: calc(100vw - 256px); }
+
+    /* ── VIEWS ── */
+    .view { display: none; animation: slideIn 0.2s ease; }
+    .view.active { display: block; }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── MODULE HEADER ── */
+    .mod-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(23,65,45,0.5);
+      border: 1px solid rgba(46,204,113,0.25);
+      border-radius: 20px; padding: 4px 12px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--accent); margin-bottom: 12px;
+    }
+    .mod-title {
+      font-size: 26px; font-weight: 700; color: var(--mint);
+      font-family: Georgia, serif; margin-bottom: 8px; line-height: 1.3;
+    }
+    .mod-desc { font-size: 14px; color: var(--text-mid); max-width: 580px; line-height: 1.7; margin-bottom: 28px; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px; margin-bottom: 20px;
+    }
+    .card + .card { margin-top: 0; }
+    .card-eyebrow {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; margin-bottom: 8px;
+    }
+    .ey-warn { color: var(--warn); }
+    .ey-good { color: var(--accent); }
+    .ey-info { color: var(--blue); }
+    .ey-purple { color: var(--purple); }
+    .ey-danger { color: var(--danger); }
+    .ey-muted { color: var(--text-muted); }
+
+    .card-title { font-size: 16px; font-weight: 600; color: var(--mint); margin-bottom: 6px; }
+    .card-body { font-size: 14px; color: var(--text-mid); line-height: 1.65; }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+
+    .quote {
+      background: rgba(9,29,19,0.8);
+      border-left: 3px solid rgba(236,255,245,0.18);
+      padding: 13px 17px; border-radius: 0 8px 8px 0;
+      font-style: italic; color: var(--text-mid);
+      font-size: 14px; line-height: 1.65; margin: 10px 0;
+    }
+    .quote.elite { border-left-color: var(--accent); color: var(--mint); }
+    .quote.risk { border-left-color: var(--danger); }
+
+    /* ── CHOICE BUTTONS ── */
+    .choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+    .choice-btn {
+      background: rgba(23,65,45,0.25);
+      border: 1px solid var(--border-mid);
+      border-radius: 8px; padding: 14px 16px;
+      cursor: pointer; text-align: left; transition: all 0.15s;
+      color: var(--mint); font-family: 'Inter', sans-serif;
+    }
+    .choice-btn:hover:not(:disabled) { background: rgba(23,65,45,0.55); border-color: rgba(236,255,245,0.3); }
+    .choice-btn:disabled { cursor: default; }
+    .choice-title { font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+    .choice-text { font-size: 12.5px; color: rgba(236,255,245,0.7); font-style: italic; line-height: 1.5; }
+    .choice-btn.correct  { background: rgba(46,204,113,0.12); border-color: rgba(46,204,113,0.5); }
+    .choice-btn.wrong    { background: rgba(231,76,60,0.12);  border-color: rgba(231,76,60,0.5);  }
+    .choice-btn.reveal   { background: rgba(46,204,113,0.07); border-color: rgba(46,204,113,0.3); }
+
+    /* ── TYPE CLASSIFY BUTTONS ── */
+    .type-grid { display: flex; gap: 12px; margin-top: 12px; }
+    .type-btn {
+      flex: 1; background: rgba(23,65,45,0.25);
+      border: 1px solid var(--border-mid); border-radius: 8px; padding: 14px 16px;
+      cursor: pointer; text-align: left; transition: all 0.15s;
+      color: var(--mint); font-family: 'Inter', sans-serif;
+    }
+    .type-btn:hover:not(:disabled) { background: rgba(23,65,45,0.55); border-color: rgba(236,255,245,0.3); }
+    .type-btn:disabled { cursor: default; }
+    .type-btn.advancing-style  { border-color: rgba(46,204,113,0.5); background: rgba(46,204,113,0.1); }
+    .type-btn.confirming-style { border-color: rgba(41,128,185,0.5); background: rgba(41,128,185,0.1); }
+
+    /* ── TEXTAREA ── */
+    .rewrite {
+      width: 100%; background: rgba(9,29,19,0.6);
+      border: 1px solid var(--border-mid); border-radius: 8px;
+      padding: 13px 15px; color: var(--mint); font-family: 'Inter', sans-serif;
+      font-size: 14px; resize: vertical; min-height: 76px;
+      line-height: 1.6; transition: border-color 0.15s; margin-top: 10px;
+    }
+    .rewrite:focus { outline: none; border-color: rgba(46,204,113,0.45); }
+    .rewrite::placeholder { color: rgba(236,255,245,0.25); }
+
+    /* ── BUTTONS ── */
+    .btn {
+      padding: 9px 18px; border-radius: 7px; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; border: none; font-family: 'Inter', sans-serif;
+    }
+    .btn-primary { background: var(--accent); color: var(--dark-green); }
+    .btn-primary:hover { background: #27AE60; }
+    .btn-ghost { background: transparent; border: 1px solid var(--border-mid); color: var(--text-mid); }
+    .btn-ghost:hover { background: rgba(236,255,245,0.05); color: var(--mint); }
+    .btn-row { display: flex; gap: 10px; align-items: center; margin-top: 14px; }
+
+    /* ── FEEDBACK ── */
+    .feedback {
+      background: rgba(9,29,19,0.9); border: 1px solid rgba(46,204,113,0.2);
+      border-radius: 10px; padding: 20px; margin-top: 16px; display: none;
+    }
+    .feedback.show { display: block; animation: slideIn 0.25s ease; }
+    .grade-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .grade {
+      padding: 3px 11px; border-radius: 20px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
+    }
+    .grade-elite  { background: rgba(46,204,113,0.18); color: var(--accent); border: 1px solid rgba(46,204,113,0.4); }
+    .grade-ok     { background: rgba(241,196,15,0.15); color: #F1C40F;       border: 1px solid rgba(241,196,15,0.4); }
+    .grade-weak   { background: rgba(231,76,60,0.15);  color: #E74C3C;       border: 1px solid rgba(231,76,60,0.4);  }
+    .feedback-body { font-size: 13.5px; color: var(--text-mid); line-height: 1.65; margin-bottom: 12px; }
+    .principle-tag {
+      display: inline-flex; align-items: center;
+      background: rgba(23,65,45,0.4); border: 1px solid rgba(46,204,113,0.2);
+      border-radius: 5px; padding: 4px 10px;
+      font-size: 11px; font-weight: 600; color: rgba(46,204,113,0.8);
+      margin-right: 6px; margin-top: 6px;
+    }
+    .medd-tag {
+      display: inline-flex; align-items: center;
+      background: rgba(41,128,185,0.15); border: 1px solid rgba(41,128,185,0.3);
+      border-radius: 5px; padding: 4px 10px;
+      font-size: 11px; font-weight: 600; color: rgba(41,128,185,0.9);
+      margin-right: 6px; margin-top: 6px;
+    }
+
+    /* ── RISK BADGES ── */
+    .risk-badge {
+      display: inline-flex; align-items: center;
+      padding: 3px 10px; border-radius: 4px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .risk-1 { background: rgba(230,126,34,0.18); color: var(--warn); border: 1px solid rgba(230,126,34,0.3); }
+    .risk-2 { background: rgba(231,76,60,0.18);  color: var(--danger); border: 1px solid rgba(231,76,60,0.3); }
+
+    /* ── STAT CARDS ── */
+    .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
+    .stat-card {
+      background: rgba(23,65,45,0.28); border: 1px solid var(--border);
+      border-radius: 10px; padding: 18px; text-align: center;
+    }
+    .stat-num { font-size: 30px; font-weight: 700; color: var(--accent); font-family: Georgia, serif; }
+    .stat-desc { font-size: 12px; color: var(--text-muted); margin-top: 5px; line-height: 1.5; }
+
+    /* ── WELCOME PILLS ── */
+    .pill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 24px 0; }
+    .pill {
+      background: rgba(23,65,45,0.28); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px; cursor: pointer; transition: all 0.15s;
+    }
+    .pill:hover { background: rgba(23,65,45,0.5); border-color: rgba(46,204,113,0.3); }
+    .pill-num { font-size: 10px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px; }
+    .pill-name { font-size: 14px; font-weight: 600; color: var(--mint); margin-bottom: 4px; }
+    .pill-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+    /* ── CHECKLIST ── */
+    .check-list { list-style: none; }
+    .check-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+      cursor: pointer; transition: background 0.1s;
+    }
+    .check-item:last-child { border-bottom: none; }
+    .check-item:hover { opacity: 0.85; }
+    .check-box {
+      width: 18px; height: 18px; border-radius: 4px;
+      border: 1.5px solid var(--border-mid); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; transition: all 0.15s; margin-top: 2px;
+    }
+    .check-box.on { background: var(--accent); border-color: var(--accent); color: var(--dark-green); font-weight: 700; }
+    .check-text { font-size: 13px; font-weight: 500; color: var(--mint); }
+    .check-medd { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    /* ── MEETING SELECTOR ── */
+    .meet-selector { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .meet-btn {
+      padding: 7px 14px; border-radius: 6px; font-size: 12px; font-weight: 600;
+      cursor: pointer; border: 1px solid var(--border-mid);
+      background: transparent; color: var(--text-mid); font-family: 'Inter', sans-serif;
+      transition: all 0.15s;
+    }
+    .meet-btn:hover { background: rgba(236,255,245,0.05); color: var(--mint); }
+    .meet-btn.active { background: rgba(23,65,45,0.5); border-color: rgba(46,204,113,0.4); color: var(--mint); }
+
+    /* ── TWO-COL ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .col-divider { width: 1px; background: var(--border); }
+
+    /* ── MODULE NAV ── */
+    .mod-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 24px; border-top: 1px solid var(--border); margin-top: 32px;
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; top: 20px; right: 20px;
+      background: rgba(9,33,21,0.97); border: 1px solid rgba(46,204,113,0.4);
+      border-radius: 9px; padding: 12px 18px;
+      font-size: 13px; font-weight: 600; color: var(--accent);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+      opacity: 0; transform: translateY(-8px); transition: all 0.3s ease;
+      pointer-events: none; z-index: 1000;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── CALLOUT ── */
+    .callout {
+      background: rgba(23,65,45,0.3); border: 1px solid var(--border);
+      border-radius: 9px; padding: 14px 18px; margin-bottom: 22px;
+    }
+    .callout-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 6px; }
+    .callout-body { font-size: 13.5px; color: var(--text-mid); line-height: 1.65; }
+
+    /* ── URGENCY LEVEL EXPLAINER ── */
+    .urgency-explainer {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 26px;
+    }
+    .urgency-box {
+      background: rgba(23,65,45,0.25); border: 1px solid var(--border);
+      border-radius: 9px; padding: 14px 16px;
+    }
+
+    /* ── STEP LABEL ── */
+    .step-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 8px; }
+
+    /* ── HIGHLIGHT BOX ── */
+    .highlight {
+      background: rgba(46,204,113,0.07); border: 1px solid rgba(46,204,113,0.2);
+      border-radius: 8px; padding: 13px 16px; margin-top: 12px;
+    }
+    .highlight-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 6px; }
+    .highlight-body { font-size: 13.5px; color: var(--mint); line-height: 1.65; }
+
+    /* ── PROGRESS INDICATOR ── */
+    .ex-progress { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+    /* ── ADVANCING vs CONFIRMING BANNER ── */
+    .type-result {
+      font-size: 13px; padding: 9px 14px; border-radius: 7px; margin-top: 10px;
+    }
+    .type-advancing { background: rgba(46,204,113,0.1); color: var(--accent); border: 1px solid rgba(46,204,113,0.3); }
+    .type-confirming { background: rgba(41,128,185,0.1); color: #5DADE2; border: 1px solid rgba(41,128,185,0.3); }
+    .type-wrong      { background: rgba(231,76,60,0.1);  color: var(--danger); border: 1px solid rgba(231,76,60,0.3); }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     PASSWORD GATE
+════════════════════════════════════════ -->
+<div id="gate" style="display:none; position:fixed; inset:0; background:var(--deep-green); z-index:9999; align-items:center; justify-content:center; flex-direction:column;">
+  <style>
+    #gate { font-family:'Inter',sans-serif; }
+    #gate .gate-card {
+      background: var(--dark-green);
+      border: 1px solid rgba(236,255,245,0.1);
+      border-radius: 14px;
+      padding: 40px 44px;
+      width: 380px;
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+    }
+    #gate .gate-logo {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 6px;
+    }
+    #gate .gate-title {
+      font-size: 20px; font-weight: 700; color: var(--mint);
+      font-family: Georgia, serif; margin-bottom: 6px;
+    }
+    #gate .gate-sub { font-size: 13px; color: rgba(236,255,245,0.5); margin-bottom: 28px; }
+    #pw-input {
+      width: 100%; background: rgba(9,29,19,0.7);
+      border: 1px solid rgba(236,255,245,0.18); border-radius: 8px;
+      padding: 12px 16px; color: var(--mint); font-family: 'Inter',sans-serif;
+      font-size: 15px; text-align: center; letter-spacing: 0.08em;
+      outline: none; transition: border-color 0.2s; margin-bottom: 14px;
+    }
+    #pw-input:focus { border-color: rgba(46,204,113,0.5); }
+    #pw-input.shake { animation: shake 0.4s ease; }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+    }
+    #pw-err {
+      font-size: 12px; color: #E74C3C; margin-bottom: 14px;
+      opacity: 0; transition: opacity 0.2s;
+    }
+    #pw-submit {
+      width: 100%; padding: 12px; background: var(--accent);
+      color: var(--dark-green); border: none; border-radius: 8px;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      font-family: 'Inter',sans-serif; transition: background 0.15s;
+    }
+    #pw-submit:hover { background: #27AE60; }
+  </style>
+  <div class="gate-card">
+    <div class="gate-logo">maybern</div>
+    <div class="gate-title">Sales Thinking Lab</div>
+    <div class="gate-sub">Enter your access password to continue</div>
+    <input id="pw-input" type="password" placeholder="Password" onkeydown="pwKeydown(event)" autocomplete="off" />
+    <div id="pw-err">Incorrect password. Try again.</div>
+    <button id="pw-submit" onclick="unlockApp()">Unlock →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     APP WRAPPER
+════════════════════════════════════════ -->
+<div id="app" style="display:none; width:100%; min-height:100vh;">
+
+<div id="toast" class="toast"></div>
+
+<!-- ═══════════════════════════════════════
+     SIDEBAR
+════════════════════════════════════════ -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-eyebrow">maybern</div>
+    <div class="sidebar-title">Sales Thinking Lab</div>
+    <div class="sidebar-sub">Practice lab · Not a training course</div>
+  </div>
+
+  <div class="sidebar-nav">
+    <div class="nav-section">Navigation</div>
+
+    <div class="nav-item active" id="nav-home" onclick="nav('home')">
+      <div class="nav-num">⌂</div>
+      <div>
+        <div class="nav-label">Home</div>
+      </div>
+    </div>
+
+    <div class="nav-section">Modules</div>
+
+    <div class="nav-item" id="nav-m1" onclick="nav('m1')">
+      <div class="nav-num" id="nnum-m1">1</div>
+      <div>
+        <div class="nav-label">Question Upgrade Engine</div>
+        <div class="nav-sub-label">Advancing vs confirming</div>
+      </div>
+    </div>
+
+    <div class="nav-item" id="nav-m2" onclick="nav('m2')">
+      <div class="nav-num" id="nnum-m2">2</div>
+      <div>
+        <div class="nav-label">Urgency Reframe Lab</div>
+        <div class="nav-sub-label">Level 1 & 2 risk messaging</div>
+      </div>
+    </div>
+
+    <div class="nav-item" id="nav-m3" onclick="nav('m3')">
+      <div class="nav-num" id="nnum-m3">3</div>
+      <div>
+        <div class="nav-label">Status Quo Disruption</div>
+        <div class="nav-sub-label">Belief shift builder</div>
+      </div>
+    </div>
+
+    <div class="nav-item" id="nav-m4" onclick="nav('m4')">
+      <div class="nav-num" id="nnum-m4">4</div>
+      <div>
+        <div class="nav-label">Complexity Risk Simulator</div>
+        <div class="nav-sub-label">Fund structure → exposure</div>
+      </div>
+    </div>
+
+    <div class="nav-item" id="nav-m5" onclick="nav('m5')">
+      <div class="nav-num" id="nnum-m5">5</div>
+      <div>
+        <div class="nav-label">Deal Advancement Tracker</div>
+        <div class="nav-sub-label">Per-meeting MEDDPICC gaps</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="score-panel">
+    <div class="score-lbl">Session Score</div>
+    <div class="score-track">
+      <div class="score-fill" id="scoreFill"></div>
+    </div>
+    <div class="score-val" id="scoreVal">0 / 100 pts</div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════
+     MAIN
+════════════════════════════════════════ -->
+<main class="main">
+
+  <!-- ── HOME ── -->
+  <div class="view active" id="view-home">
+    <div style="max-width: 680px;">
+      <div class="mod-tag">Practice Lab</div>
+      <h1 class="mod-title" style="font-size: 32px;">You're being trained<br>to think in a live deal.</h1>
+      <p class="mod-desc">This is not a training course. Every exercise is built from real Maybern deal situations. Every piece of feedback is grounded in how elite AEs actually move deals forward.</p>
+
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-num">94%</div>
+          <div class="stat-desc">of spreadsheets contain errors — buyers just don't know which ones yet</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">81%</div>
+          <div class="stat-desc">of institutional LPs say reporting transparency matters more than 5 years ago</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">70%</div>
+          <div class="stat-desc">of private funds now include side letters with economic provisions</div>
+        </div>
+      </div>
+
+      <div class="pill-grid">
+        <div class="pill" onclick="nav('m1')">
+          <div class="pill-num">Module 1</div>
+          <div class="pill-name">Question Upgrade Engine</div>
+          <div class="pill-desc">Classify and rewrite raw questions. Advancing (CV belief shift) vs confirming (MEDDPICC stage check).</div>
+        </div>
+        <div class="pill" onclick="nav('m2')">
+          <div class="pill-num">Module 2</div>
+          <div class="pill-name">Urgency Reframe Lab</div>
+          <div class="pill-desc">Turn efficiency messaging into urgency. Level 1 operational consequence vs Level 2 GP accountability.</div>
+        </div>
+        <div class="pill" onclick="nav('m3')">
+          <div class="pill-num">Module 3</div>
+          <div class="pill-name">Status Quo Disruption Builder</div>
+          <div class="pill-desc">Respond to buyer comfort and defense. Choose the disruptive move. Make the safe choice feel unsafe.</div>
+        </div>
+        <div class="pill" onclick="nav('m4')">
+          <div class="pill-num">Module 4</div>
+          <div class="pill-name">Complexity Risk Simulator</div>
+          <div class="pill-desc">Fund complexity scenarios. Communicate structural risk — not product features.</div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-lbl">The Core Principle</div>
+        <div class="callout-body">
+          <strong style="color: var(--mint);">Advancing questions</strong> carry Corporate Visions buyer psychology — they shift belief and disrupt status quo comfort.
+          <strong style="color: var(--mint);">Confirming questions</strong> carry MEDDPICC checks — they validate the deal is actually moving.
+          Both matter. Most AEs only use one.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       MODULE 1 — QUESTION UPGRADE ENGINE
+  ════════════════════════════════════ -->
+  <div class="view" id="view-m1">
+    <div class="mod-tag">Module 1</div>
+    <h1 class="mod-title">Question Upgrade Engine</h1>
+    <p class="mod-desc">Each exercise shows a raw question from a Maybern deal. First classify it — does it advance the deal or confirm something you already know? Then rewrite it. Then see how an elite AE would ask it.</p>
+    <div id="m1-body"></div>
+    <div class="mod-nav">
+      <button class="btn btn-ghost" onclick="nav('home')">← Home</button>
+      <button class="btn btn-primary" onclick="nav('m2')">Urgency Reframe Lab →</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       MODULE 2 — URGENCY REFRAME LAB
+  ════════════════════════════════════ -->
+  <div class="view" id="view-m2">
+    <div class="mod-tag">Module 2</div>
+    <h1 class="mod-title">Urgency Reframe Lab</h1>
+    <p class="mod-desc">Value without risk does not create urgency. Each exercise starts with efficiency-based messaging. Rewrite it at the level that actually moves deals.</p>
+
+    <div class="urgency-explainer">
+      <div class="urgency-box">
+        <span class="risk-badge risk-1" style="margin-bottom: 8px; display:inline-flex;">Level 1 — Operational</span>
+        <div class="card-body" style="margin-top:8px;">A time-bound consequence tied to a real event: exit, audit, fund launch, carry distribution. Makes <em>waiting</em> dangerous.</div>
+      </div>
+      <div class="urgency-box">
+        <span class="risk-badge risk-2" style="margin-bottom: 8px; display:inline-flex;">Level 2 — GP Accountability</span>
+        <div class="card-body" style="margin-top:8px;">Shifts the problem from "this is inefficient" to "this is <em>my</em> accountability." Breaks status quo comfort. Turns nice-to-have into must-have.</div>
+      </div>
+    </div>
+
+    <div id="m2-body"></div>
+    <div class="mod-nav">
+      <button class="btn btn-ghost" onclick="nav('m1')">← Question Engine</button>
+      <button class="btn btn-primary" onclick="nav('m3')">Status Quo Disruption →</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       MODULE 3 — STATUS QUO DISRUPTION
+  ════════════════════════════════════ -->
+  <div class="view" id="view-m3">
+    <div class="mod-tag">Module 3</div>
+    <h1 class="mod-title">Status Quo Disruption Builder</h1>
+    <p class="mod-desc">A buyer who feels safe doesn't buy. Each scenario shows a common buyer belief or defense. Choose your response. The system scores whether you disrupted the belief or reinforced it.</p>
+    <div id="m3-body"></div>
+    <div class="mod-nav">
+      <button class="btn btn-ghost" onclick="nav('m2')">← Urgency Reframe</button>
+      <button class="btn btn-primary" onclick="nav('m4')">Complexity Simulator →</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       MODULE 4 — COMPLEXITY RISK SIMULATOR
+  ════════════════════════════════════ -->
+  <div class="view" id="view-m4">
+    <div class="mod-tag">Module 4</div>
+    <h1 class="mod-title">Complexity Risk Simulator</h1>
+    <p class="mod-desc">Most funds don't struggle with the math. They struggle with the logic. Each exercise surfaces a fund complexity driver. Your job is to communicate the risk — not the feature.</p>
+
+    <div class="callout">
+      <div class="callout-lbl">Core Distinction</div>
+      <div class="callout-body">Features describe capability. Risk describes what happens when that capability isn't there during a realization, an audit, or an LP question. Always sell risk first.</div>
+    </div>
+
+    <div id="m4-body"></div>
+    <div class="mod-nav">
+      <button class="btn btn-ghost" onclick="nav('m3')">← Status Quo</button>
+      <button class="btn btn-primary" onclick="nav('m5')">Deal Tracker →</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       MODULE 5 — DEAL ADVANCEMENT TRACKER
+  ════════════════════════════════════ -->
+  <div class="view" id="view-m5">
+    <div class="mod-tag">Module 5</div>
+    <h1 class="mod-title">Deal Advancement Tracker</h1>
+    <p class="mod-desc">Use the per-meeting MEDDPICC checklist to stress-test your deals. Every unchecked box is a gap. If you can't check it, the deal hasn't advanced — it's only confirmed.</p>
+    <div class="meet-selector" id="m5-selector"></div>
+    <div id="m5-body"></div>
+    <div class="mod-nav">
+      <button class="btn btn-ghost" onclick="nav('m4')">← Complexity</button>
+      <button class="btn btn-ghost" onclick="nav('home')">Back to Home</button>
+    </div>
+  </div>
+
+</main>
+
+<!-- ═══════════════════════════════════════
+     DATA + LOGIC
+════════════════════════════════════════ -->
+<script>
+
+/* ──────────────────────────────────────
+   MODULE 1 DATA — Question Upgrade Engine
+   (sourced from Sheet1, GP Partner Risk, Sales Fundamentals)
+────────────────────────────────────── */
+const M1 = [
+  {
+    raw: "Tell me your process.",
+    ctx: "M1 call. You want to understand how they run their waterfall calculations.",
+    correctType: "confirming",
+    classifyNote: "This hands the mic to the buyer to explain why their process works. They will defend it, not critique it. You've learned nothing about risk.",
+    eliteQ: "Currently, where does your waterfall logic actually live — is it inside your admin's system, or does someone on your team own it separately?",
+    eliteWhy: "This is a diagnostic, not an invitation to justify. It surfaces the calculation layer and who controls it — without asking them to defend their process.",
+    cvPrinciple: "Unconsidered Need",
+    meddpicc: "Identified Pain",
+    finalType: "advancing"
+  },
+  {
+    raw: "How many funds are you managing today?",
+    ctx: "M1 intro. You're trying to understand their scale and complexity.",
+    correctType: "confirming",
+    classifyNote: "This is a confirming fact-gather. You get a number. You don't learn what changes when that number grows — or what breaks.",
+    eliteQ: "You mentioned Fund II is live. When Fund III launches, where does the added complexity actually land — is that a model problem, a staffing problem, or both?",
+    eliteWhy: "Anchors scale to consequence. Forces the buyer to picture the breaking point, not just count funds. Now you're learning about risk, not headcount.",
+    cvPrinciple: "Why Now",
+    meddpicc: "Metrics",
+    finalType: "advancing"
+  },
+  {
+    raw: "Do you have shadow models today?",
+    ctx: "Mid-discovery. You suspect they're running parallel validation outside their admin's system.",
+    correctType: "confirming",
+    classifyNote: "Yes/no question. Confirms what you suspect or rules it out. Doesn't expand the problem either way.",
+    eliteQ: "When the admin sends over their waterfall, what does your team actually do before you're comfortable with the number?",
+    eliteWhy: "Lets the buyer describe the shadow work themselves without you labeling it. Their answer is the insight — not your question. Now they own the diagnosis.",
+    cvPrinciple: "Status Quo Bias",
+    meddpicc: "Identified Pain",
+    finalType: "advancing"
+  },
+  {
+    raw: "What's your timeline for making a decision?",
+    ctx: "You want to understand when they plan to move forward.",
+    correctType: "confirming",
+    classifyNote: "This confirms your pipeline math, not their urgency. If there's no urgency, the timeline is fiction. A question about their calendar isn't a question about their risk.",
+    eliteQ: "What happens to your team's workload if you go into the next realization without this solved?",
+    eliteWhy: "Shifts the timeline from your sales cycle to their operational risk. Urgency becomes theirs — not yours. This is how you create Why Now without manufacturing pressure.",
+    cvPrinciple: "Loss Aversion",
+    meddpicc: "Decision Process",
+    finalType: "advancing"
+  },
+  {
+    raw: "Who else needs to be involved in this decision?",
+    ctx: "End of M1. You want to map the buying committee before closing the meeting.",
+    correctType: "advancing",
+    classifyNote: "This is the right question at this stage. It's a MEDDPICC confirming check — and it belongs at M1 exit as a deal-progression gate.",
+    eliteQ: "Who else would have visibility into what you just described — and who ultimately has to answer for it if the waterfall math is wrong at a realization?",
+    eliteWhy: "Separates users from the economic buyer. The person who 'answers for it' is your path to the EB. This turns a confirming question into a partial belief-shift at the same time.",
+    cvPrinciple: "Shift Ownership to Economic Buyer",
+    meddpicc: "Economic Buyer",
+    finalType: "confirming"
+  },
+  {
+    raw: "Are you comfortable moving to a demo?",
+    ctx: "End of M1 discovery. You want to book the next meeting.",
+    correctType: "confirming",
+    classifyNote: "This is a close attempt dressed as a question. You're asking for permission — which signals you're not sure you've earned the next step.",
+    eliteQ: "Based on what you've described — especially around the carry calculation and audit exposure — there's a real logic layer worth mapping. Does it make sense to bring in whoever owns that model for a working session?",
+    eliteWhy: "Names the pain, frames the next step as diagnostic (not a sales meeting), and pulls in the right stakeholder — without asking for permission. You've earned the next step; now you're directing it.",
+    cvPrinciple: "Hammock Effect",
+    meddpicc: "Champion",
+    finalType: "advancing"
+  }
+];
+
+/* ──────────────────────────────────────
+   MODULE 2 DATA — Urgency Reframe Lab
+   (sourced from Operational Urgency Lvl 1, GP Partner Risk Lvl 2)
+────────────────────────────────────── */
+const M2 = [
+  {
+    weakMsg: "Maybern saves your team time by automating manual waterfall calculations.",
+    ctx: "You delivered this in an M1. The CFO says 'that sounds interesting' and goes quiet. The deal stalls.",
+    lvl1Event: "First realization / carry distribution",
+    lvl1Msg: "When your first carry distribution hits, the waterfall isn't just a model — it's a payout decision. If the math is wrong, carry gets held. Who, in that moment, rebuilds the numbers under pressure — and who answers to the partners for the delay?",
+    lvl2Msg: "Admins can do the work — but they can't own the consequence. When partners question the carry calculation, who ultimately has to defend it? That's not an admin problem. That's a GP accountability problem.",
+    coreShift: "Time savings → Payout risk at realization",
+    cvTag: "Loss Aversion + Shift Ownership to Economic Buyer"
+  },
+  {
+    weakMsg: "Our platform gives your team a single source of truth for fund calculations.",
+    ctx: "Controller nods along. They like the idea but feel no urgency to move. The deal drifts into 'someday.'",
+    lvl1Event: "Audit scrutiny increase",
+    lvl1Msg: "Auditors are already asking for more support documentation. If your waterfall logic lives across three Excel files and two people's laptops, what does your audit prep actually look like — and how long does it take to rebuild the explanation from scratch?",
+    lvl2Msg: "When auditors request independent support, the comfort doesn't come from the system — it comes from whoever can explain it. That's individual judgment carrying institutional risk. At what point does your CFO stop being comfortable with that?",
+    coreShift: "Single source of truth → Audit defensibility",
+    cvTag: "Unconsidered Need + Why Now"
+  },
+  {
+    weakMsg: "Maybern reduces reconciliation errors across your fund accounting process.",
+    ctx: "Prospect responds: 'We haven't really had errors, so I'm not sure this applies to us.' Deal stalls at status quo.",
+    lvl1Event: "More sophisticated LP questions",
+    lvl1Msg: "Even if nothing has broken yet — what happens when an LP pushes back on a distribution amount and your CFO has to reconstruct the logic live? How long does that take? And what does it signal to that LP about your firm's controls?",
+    lvl2Msg: "LPs aren't questioning your math. They're testing your governance. The moment a CFO says 'let me get back to you on that,' the narrative shifts from competent operator to reactive firm. That's not a math problem. That's a credibility problem the GP owns.",
+    coreShift: "Error reduction → LP confidence and governance signal",
+    cvTag: "Status Quo Bias + Why Change"
+  },
+  {
+    weakMsg: "We automate fee calculations including step-downs, side letters, and management fee offsets.",
+    ctx: "You're mid-demo. The technical buyer is engaged. But the business case hasn't landed for the decision-maker.",
+    lvl1Event: "Side letter growth / new fund launch",
+    lvl1Msg: "When does your fee logic stop being arithmetic and become conditional logic? At 15 side letters with MFN provisions, every new LP creates a branching calculation. That's where shadow models start — and where errors stop being theoretical.",
+    lvl2Msg: "Which parts of your fee waterfall still rely on someone's judgment rather than a system rule? Because judgment-based calculation is fine — until the person who carries that judgment isn't available at quarter-end. Who covers that risk today?",
+    coreShift: "Fee automation → Structural risk from manual exception handling",
+    cvTag: "Expose Hidden Risk + Create Contrast"
+  }
+];
+
+/* ──────────────────────────────────────
+   MODULE 3 DATA — Status Quo Disruption
+   (sourced from Status Quo sheet, Sales Fundamentals)
+────────────────────────────────────── */
+const M3 = [
+  {
+    belief: "We've never had an issue with our waterfall. Our admin is great and the team knows the process.",
+    ctx: "M1 call. CFO says this after you've started exploring the calculation layer. The room relaxes.",
+    choices: [
+      { label: "Acknowledge and pivot to features", text: "That's great to hear. Maybern can still help by centralizing those calculations in one place.", grade: "weak", pts: 0, fb: "You conceded the problem. No belief shift happened. The CFO left feeling safer about their status quo than when they entered. You handed back the room." },
+      { label: "Validate, then project forward", text: "That's actually the pattern. Most firms haven't had an issue yet. The question isn't whether it's worked so far — it's whether this process holds up when complexity stacks. More funds, more LPs, more side letters. What changes for your admin at that point?", grade: "elite", pts: 20, fb: "You separated past success from future exposure — without creating defensiveness. The buyer's 'it works' becomes 'it works until it doesn't.' That's the belief shift." },
+      { label: "Challenge the admin directly", text: "Are you sure? Most admins have errors in their calculations.", grade: "weak", pts: 0, fb: "This creates defensiveness, not curiosity. Attacking the admin forces the CFO to defend them. You lose trust and the room. Never attack a third party the buyer has chosen." },
+      { label: "Ask about growth plans", text: "Got it. Are you planning to launch any new funds in the next year?", grade: "ok", pts: 10, fb: "Better — you're moving toward future contrast. But you haven't reframed the current belief yet. The buyer is still comfortable. Push the 'what changes when complexity stacks' reframe first, then follow with the growth question." }
+    ],
+    correct: 1,
+    eliteReframe: "Even if this hasn't failed yet — what changes when complexity stacks?",
+    cvPrinciple: "Separate past success from future exposure"
+  },
+  {
+    belief: "We have a shadow model we use to check the admin's work. It's a bit of extra effort but it catches things.",
+    ctx: "Controller explains this as a feature — not a problem. They're proud of it. They built it themselves.",
+    choices: [
+      { label: "Agree it's a smart practice", text: "That's actually a best practice. Having a check on your admin is important.", grade: "weak", pts: 0, fb: "You validated the exact behavior that creates your entire value case. The shadow model IS the problem — it's the symptom of a broken system, not a control. You just called their problem a best practice." },
+      { label: "Reframe the shadow model as the signal", text: "The fact that you built a shadow model is the most important thing you've told me so far. It means your admin's output isn't the source of truth — someone on your team has to re-derive it. That's not a double-check. That's a parallel calculation engine. How long does it take to maintain?", grade: "elite", pts: 20, fb: "You reframed the shadow model from 'smart practice' to 'systemic signal.' The buyer now sees a cost they didn't see before — without you manufacturing the insight. It became theirs." },
+      { label: "Ask how often errors are caught", text: "How many errors does the shadow model actually catch?", grade: "ok", pts: 8, fb: "Decent diagnostic — but it puts the buyer in a position to minimize the number. Even 'not many' becomes a defense of the status quo. Better to reframe the cost of maintaining the model itself." },
+      { label: "Quantify the time it takes", text: "How many hours does your team spend on that each quarter?", grade: "ok", pts: 10, fb: "Time quantification is solid for Level 1 urgency. But you haven't disrupted the belief that this is normal. Combine this with the reframe: 'Two parallel models that can disagree means someone on your team has to decide which one they trust. That's the risk.'" }
+    ],
+    correct: 1,
+    eliteReframe: "Two models that disagree means someone has to decide which one to trust. That decision is your risk.",
+    cvPrinciple: "Expose hidden risk — make the abstract cost tangible"
+  },
+  {
+    belief: "We're not looking to change anything right now. We'll revisit in Q4 when budgets are set.",
+    ctx: "End of M2. Deal was progressing. Now the prospect is pumping the brakes on timeline. You're at a status quo stall.",
+    choices: [
+      { label: "Respect the timeline and follow up in Q4", text: "That makes sense — I'll reach out in Q4 and we can pick this up.", grade: "weak", pts: 0, fb: "You accepted a fictional timeline. Q4 never comes. There is no urgency to revisit. Without tying the delay to a real event, you lose the deal to inertia. Budget cycles aren't urgency — events are." },
+      { label: "Tie urgency to a near-term event in their calendar", text: "I want to make sure we're not leaving timing to chance. You mentioned a realization in Q3. If that goes live and the waterfall logic is still across two systems, what does your team's workload look like in the six weeks before that closes?", grade: "elite", pts: 20, fb: "You anchored urgency to a real event in their calendar — not your sales cycle. This is Level 1 urgency. The timeline conversation now belongs to their operational reality, not your pipeline math." },
+      { label: "Offer a discount to accelerate", text: "We could offer early Q2 pricing if you wanted to move before the budget cycle.", grade: "weak", pts: 0, fb: "This kills your pricing power and signals you're more afraid of losing the deal than they are of losing value. Never concede on price before urgency is established." },
+      { label: "Ask what would change their timeline", text: "What would need to be true for this to become a higher priority?", grade: "ok", pts: 12, fb: "Good instinct — you're putting the urgency criteria on them. But the buyer will give you a generic answer without a specific event to anchor to. Surface a known event first, then ask." }
+    ],
+    correct: 1,
+    eliteReframe: "Anchor urgency to their calendar event — not your pipeline. The realization, audit, or fund launch creates the Why Now.",
+    cvPrinciple: "Why Now — time-bound consequence tied to a real event"
+  }
+];
+
+/* ──────────────────────────────────────
+   MODULE 4 DATA — Complexity Risk Simulator
+   (sourced from Driving Complexity sheet)
+────────────────────────────────────── */
+const M4 = [
+  {
+    driver: "Side Letter Discounts",
+    whatItIs: "Different investors have different economic provisions: reduced fees, fee holidays, MFN provisions, different carry participation.",
+    weakPitch: "We handle side letter tracking automatically so your team doesn't have to manage exceptions manually.",
+    eliteRisk: "This is where shadow models start. At 5 LPs with standard economics, your fee model is arithmetic. At 20 LPs with MFN provisions, it becomes conditional logic — every new investor creates a branching calculation. The question isn't whether you're managing it today. It's whether the system you're using was built to handle that matrix.",
+    liveQ: "What happens when two LPs both invoke MFN and the resulting economics conflict? Who resolves that — and how is the resolution documented?",
+    fundamental: "Create Contrast + Expose Risk",
+    cvMove: "Make the safe choice feel structurally unsafe as exceptions compound"
+  },
+  {
+    driver: "Fee Step-Downs After Investment Period",
+    whatItIs: "Fees change after the investment period ends (e.g., 2% on committed capital → 1.5% on invested capital at year 5).",
+    weakPitch: "Our fee engine automatically applies step-down logic based on your fund terms.",
+    eliteRisk: "In Excel, this means multiple fee tabs, date-dependent formulas, and manual toggles. The risk isn't that you'll forget the step-down exists — it's that someone forgets to trigger it, or triggers it at the wrong time. Fee errors distort preferred return tiers, IRR, and carry allocations. If fees are wrong, the waterfall is wrong. If the waterfall is wrong, LP statements are wrong.",
+    liveQ: "How does your team currently track that the fee base switch has occurred — and who validates it before the next LP statement goes out?",
+    fundamental: "Expose Hidden Risk — time-based triggers create silent failure points",
+    cvMove: "Turn abstract calculation risk into real LP exposure before it hits audit"
+  },
+  {
+    driver: "Real Estate Asset-Level Promotes",
+    whatItIs: "In real estate, waterfalls exist at multiple levels: asset-level promotes, JV waterfalls, and fund-level waterfalls. Each asset triggers its own promote, lookback, and catch-up calculations.",
+    weakPitch: "Maybern handles multi-tier waterfall structures including asset-level promotes.",
+    eliteRisk: "You're not calculating one waterfall anymore — you're compounding logic. Every asset has its own promote, lookback, and catch-up. Those outputs feed the fund-level waterfall. Each calculation depends on the accuracy of the layer below it. Reconciliation exposure doesn't live in the fund waterfall — it lives in the gap between the asset-level math and the fund-level output.",
+    liveQ: "When there's a discrepancy between your asset-level promote calculation and what flows into the fund waterfall — how do you trace it back, and who owns that reconciliation?",
+    fundamental: "Quantify Escalation — layered waterfalls multiply audit exposure",
+    cvMove: "Shift from describing product capability to describing compounding structural risk"
+  },
+  {
+    driver: "Management Fee Scale Non-Linearity",
+    whatItIs: "Fund I: one strategy, no side letters, one static fee. Fund III: 15 side letters, 60 investors, multiple fee structures, step-downs, and MFN provisions.",
+    weakPitch: "As you scale, our platform grows with you without adding headcount.",
+    eliteRisk: "The problem isn't linear — you multiply investor × asset × time × structure × discount. That's compound growth on the backend. Excel handles rows and columns well. It struggles with conditional matrices. The first time this breaks isn't when you notice the error — it's when an LP questions the calculation and someone on your team can't reconstruct the logic without the original author in the room.",
+    liveQ: "At what point does someone on your team own a model that only they fully understand? And what's the plan if they're not available during a realization?",
+    fundamental: "Create Future Risk + Urgency — today's model works until scale exposes structural fragility",
+    cvMove: "Make the buyer see that today's workable solution creates tomorrow's single point of failure"
+  }
+];
+
+/* ──────────────────────────────────────
+   MODULE 5 DATA — Deal Advancement Tracker
+   (sourced from Sales Process Checklist Per Meeting)
+────────────────────────────────────── */
+const M5 = [
+  {
+    label: "M1 · First Call",
+    title: "AE First Call / Intro",
+    items: [
+      { text: "AUM confirmed", tag: "Metrics" },
+      { text: "Strategy & fund structure confirmed", tag: "Identified Pain" },
+      { text: "Admin + GL + investor portal identified", tag: "Decision Criteria" },
+      { text: "Waterfall type identified (American / European / Hybrid)", tag: "Identified Pain" },
+      { text: "Side letters confirmed or ruled out", tag: "Identified Pain" },
+      { text: "Economic buyer identified — or path to them defined", tag: "Economic Buyer" },
+      { text: "Clear next meeting scheduled live before hanging up", tag: "Decision Process" }
+    ],
+    advCheck: "Did you find out who would have to answer for the waterfall if something went wrong at a realization? That's your economic buyer path — not the person who manages the spreadsheet."
+  },
+  {
+    label: "M2 · Intro Demo",
+    title: "Initial Demo",
+    items: [
+      { text: "Current operating model clearly understood", tag: "Identified Pain" },
+      { text: "Admin dependency clearly articulated", tag: "Identified Pain" },
+      { text: "Manual validation burden surfaced and quantified", tag: "Identified Pain" },
+      { text: "Complexity confirmed (side letters, step-downs, co-invests, etc.)", tag: "Identified Pain" },
+      { text: "Growth inflection identified (new fund, LP growth, upcoming audit)", tag: "Metrics" },
+      { text: "Risk elevated beyond time savings — structural exposure discussed", tag: "Identified Pain" },
+      { text: "Next meeting scheduled live", tag: "Decision Process" }
+    ],
+    advCheck: "Did you leave this call with the buyer believing the risk goes beyond inefficiency? If not, risk is still theoretical to them — and theoretical risk doesn't move timelines."
+  },
+  {
+    label: "M3 · Coordination",
+    title: "Coordination & Discovery",
+    items: [
+      { text: "Workflow fully mapped — who touches what, and when", tag: "Identified Pain" },
+      { text: "Shadow model confirmed and maintenance burden quantified", tag: "Identified Pain" },
+      { text: "Time burden quantified in hours or FTE cycles", tag: "Metrics" },
+      { text: "Error handling process clarified", tag: "Identified Pain" },
+      { text: "Stakeholder map expanded — new names surfaced", tag: "Champion" },
+      { text: "NDA executed", tag: "Paper Process" },
+      { text: "Next meeting scheduled live", tag: "Decision Process" }
+    ],
+    advCheck: "Do you know who owns the shadow model — and who depends on it? That person is either your champion or your roadblock. You need to know which before M4."
+  },
+  {
+    label: "M4 · Value Creation",
+    title: "Value Creation Workshop",
+    items: [
+      { text: "Manual workload quantified in FTE hours or fully-loaded cost", tag: "Metrics" },
+      { text: "Executive risk articulated and acknowledged by the buyer", tag: "Identified Pain" },
+      { text: "Headcount scaling pressure surfaced", tag: "Metrics" },
+      { text: "Economic impact validated — carry risk, audit cost, LP credibility", tag: "Metrics" },
+      { text: "Buying process clarified — who approves, in what sequence", tag: "Decision Process" },
+      { text: "Executive meeting scheduled", tag: "Economic Buyer" },
+      { text: "Next meeting scheduled live", tag: "Decision Process" }
+    ],
+    advCheck: "Can the economic buyer articulate the risk in their own words? If they can't, the business case hasn't landed. You're still selling to the user layer."
+  },
+  {
+    label: "M5 · Process Review",
+    title: "Process Review",
+    items: [
+      { text: "Discretion / edge cases in waterfall clarified — what relies on judgment", tag: "Identified Pain" },
+      { text: "Side letter governance clarified", tag: "Decision Criteria" },
+      { text: "Audit defensibility discussed", tag: "Identified Pain" },
+      { text: "Risk ownership clarified — who answers for it when something goes wrong", tag: "Champion" },
+      { text: "Internal approval path clarified", tag: "Decision Process" },
+      { text: "Advancement criteria agreed — what does 'ready to move forward' look like", tag: "Decision Criteria" },
+      { text: "Next meeting scheduled live", tag: "Decision Process" }
+    ],
+    advCheck: "Do you know who signs off internally — and whether your champion has the organizational standing to drive that? A champion who can't remove internal obstacles isn't a champion."
+  }
+];
+
+/* ──────────────────────────────────────
+   GLOBAL STATE
+────────────────────────────────────── */
+let score = 0;
+const MAX_SCORE = 100;
+
+const m1done = {};
+const m2done = {};
+const m4done = {};
+const m5checks = {};
+
+/* ──────────────────────────────────────
+   NAVIGATION
+────────────────────────────────────── */
+function nav(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  const navEl = document.getElementById('nav-' + id);
+  if (navEl) navEl.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+/* ──────────────────────────────────────
+   SCORE
+────────────────────────────────────── */
+function addScore(pts, grade) {
+  score = Math.min(score + pts, MAX_SCORE);
+  const pct = (score / MAX_SCORE) * 100;
+  document.getElementById('scoreFill').style.width = pct + '%';
+  document.getElementById('scoreVal').textContent = score + ' / ' + MAX_SCORE + ' pts';
+  if (pts > 0) showToast('+' + pts + ' pts — ' + { elite: 'Elite', ok: 'Solid', weak: 'Weak' }[grade], grade);
+}
+
+function showToast(msg, grade) {
+  const t = document.getElementById('toast');
+  const colors = { elite: '#2ECC71', ok: '#F1C40F', weak: '#E74C3C' };
+  t.textContent = msg;
+  t.style.color = colors[grade] || '#2ECC71';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+/* ──────────────────────────────────────
+   MODULE 1 BUILD
+────────────────────────────────────── */
+function buildM1() {
+  const body = document.getElementById('m1-body');
+  M1.forEach((q, i) => {
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.id = 'm1-card-' + i;
+    el.innerHTML = `
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:6px;">
+        <div style="flex:1;">
+          <div class="card-eyebrow ey-muted" style="margin-bottom:6px;">Exercise ${i+1} of ${M1.length}</div>
+          <div class="card-title" style="font-size:15px; margin-bottom:0;">"${q.raw}"</div>
+        </div>
+        <div style="text-align:right; flex-shrink:0; max-width:220px;">
+          <div class="card-eyebrow ey-info" style="margin-bottom:4px;">Deal Context</div>
+          <div style="font-size:12px; color:var(--text-muted);">${q.ctx}</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="step-lbl">Step 1 — Classify this question</div>
+      <div class="type-grid" id="m1-type-${i}">
+        <button class="type-btn" onclick="m1Classify(${i},'advancing')" id="m1-adv-${i}">
+          <div style="font-weight:700; font-size:13px; margin-bottom:4px; color:var(--accent);">Advancing</div>
+          <div style="font-size:12px; color:var(--text-muted);">Surfaces unconsidered pain, disrupts status quo, shifts buyer belief</div>
+        </button>
+        <button class="type-btn" onclick="m1Classify(${i},'confirming')" id="m1-conf-${i}">
+          <div style="font-weight:700; font-size:13px; margin-bottom:4px; color:#5DADE2;">Confirming</div>
+          <div style="font-size:12px; color:var(--text-muted);">Validates MEDDPICC stage progression, checks deal health</div>
+        </button>
+      </div>
+
+      <div id="m1-classify-result-${i}"></div>
+      <div id="m1-step2-${i}" style="display:none; margin-top:16px;">
+        <div class="step-lbl">Step 2 — Rewrite it as an advancing question</div>
+        <textarea class="rewrite" id="m1-ta-${i}" placeholder="Write something — even rough. The gap between yours and the elite version is what trains you."></textarea>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="m1ShowElite(${i})">See Elite Version</button>
+          <span style="font-size:12px; color:var(--text-muted);">Any attempt beats nothing.</span>
+        </div>
+      </div>
+
+      <div class="feedback" id="m1-fb-${i}">
+        <div style="margin-bottom:10px;"><div class="card-eyebrow ey-good" style="margin-bottom:6px;">Elite Version</div>
+        <div class="quote elite">"${q.eliteQ}"</div></div>
+        <div class="feedback-body">${q.eliteWhy}</div>
+        <div>
+          <span class="principle-tag">CV: ${q.cvPrinciple}</span>
+          <span class="medd-tag">MEDDPICC: ${q.meddpicc}</span>
+        </div>
+      </div>
+    `;
+    body.appendChild(el);
+  });
+}
+
+function m1Classify(idx, type) {
+  if (m1done['class-' + idx]) return;
+  m1done['class-' + idx] = true;
+
+  const q = M1[idx];
+  const isCorrect = type === q.finalType;
+  const advBtn = document.getElementById('m1-adv-' + idx);
+  const confBtn = document.getElementById('m1-conf-' + idx);
+
+  [advBtn, confBtn].forEach(b => b.disabled = true);
+
+  if (type === 'advancing') advBtn.classList.add(isCorrect ? 'advancing-style' : 'wrong');
+  else confBtn.classList.add(isCorrect ? 'confirming-style' : 'wrong');
+
+  // Always mark which one was correct
+  if (!isCorrect) {
+    if (q.finalType === 'advancing') advBtn.classList.add('advancing-style');
+    else confBtn.classList.add('confirming-style');
+  }
+
+  const result = document.getElementById('m1-classify-result-' + idx);
+  if (!isCorrect) {
+    result.innerHTML = `<div class="type-result type-wrong" style="margin-top:10px;">⚠ ${q.classifyNote}</div>`;
+  } else {
+    result.innerHTML = `<div class="type-result ${q.finalType === 'advancing' ? 'type-advancing' : 'type-confirming'}" style="margin-top:10px;">✓ Correct. ${q.classifyNote}</div>`;
+  }
+
+  // Always show step 2 (every question can be rewritten to be more advancing)
+  document.getElementById('m1-step2-' + idx).style.display = 'block';
+}
+
+function m1ShowElite(idx) {
+  const fb = document.getElementById('m1-fb-' + idx);
+  fb.classList.add('show');
+  if (!m1done['scored-' + idx]) {
+    m1done['scored-' + idx] = true;
+    addScore(8, 'elite');
+  }
+}
+
+/* ──────────────────────────────────────
+   MODULE 2 BUILD
+────────────────────────────────────── */
+function buildM2() {
+  const body = document.getElementById('m2-body');
+  M2.forEach((u, i) => {
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.innerHTML = `
+      <div class="card-eyebrow ey-warn" style="margin-bottom:6px;">Efficiency Messaging — Upgrade This</div>
+      <div class="quote risk">"${u.weakMsg}"</div>
+      <div style="font-size:13px; color:var(--text-muted); margin-top:8px;"><strong style="color:rgba(236,255,245,0.55);">Context:</strong> ${u.ctx}</div>
+
+      <div class="divider"></div>
+
+      <div class="step-lbl">Rewrite it. What creates real urgency here?</div>
+      <textarea class="rewrite" id="m2-ta-${i}" placeholder="Don't sell the feature. Sell the consequence of not acting. Level 1 = operational event. Level 2 = who's accountable."></textarea>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="m2Reveal(${i})">Reveal Urgency Reframe</button>
+      </div>
+
+      <div class="feedback" id="m2-fb-${i}">
+        <div style="display:grid; grid-template-columns:1fr 1px 1fr; gap:16px; margin-bottom:14px;">
+          <div>
+            <span class="risk-badge risk-1" style="margin-bottom:8px; display:inline-flex;">Level 1 — Operational</span>
+            <div style="font-size:12px; color:var(--text-muted); margin:6px 0 10px; font-style:italic;">Trigger event: ${u.lvl1Event}</div>
+            <div class="quote">"${u.lvl1Msg}"</div>
+          </div>
+          <div style="background:var(--border);"></div>
+          <div>
+            <span class="risk-badge risk-2" style="margin-bottom:8px; display:inline-flex;">Level 2 — GP Accountability</span>
+            <div style="font-size:12px; color:var(--text-muted); margin:6px 0 10px; font-style:italic;">Shifts who owns the risk</div>
+            <div class="quote">"${u.lvl2Msg}"</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <span class="principle-tag">Core shift: ${u.coreShift}</span>
+        <span class="principle-tag">CV: ${u.cvTag}</span>
+      </div>
+    `;
+    body.appendChild(el);
+  });
+}
+
+function m2Reveal(idx) {
+  const fb = document.getElementById('m2-fb-' + idx);
+  fb.classList.add('show');
+  if (!m2done['scored-' + idx]) {
+    m2done['scored-' + idx] = true;
+    addScore(6, 'elite');
+  }
+}
+
+/* ──────────────────────────────────────
+   MODULE 3 BUILD
+────────────────────────────────────── */
+function buildM3() {
+  const body = document.getElementById('m3-body');
+  M3.forEach((s, i) => {
+    const el = document.createElement('div');
+    el.className = 'card';
+
+    const choicesHTML = s.choices.map((c, ci) => `
+      <button class="choice-btn" onclick="m3Choose(${i},${ci})" id="m3-c-${i}-${ci}">
+        <div class="choice-title">${c.label}</div>
+        <div class="choice-text">"${c.text}"</div>
+      </button>
+    `).join('');
+
+    el.innerHTML = `
+      <div class="card-eyebrow ey-warn" style="margin-bottom:6px;">Scenario ${i+1} — Buyer Says</div>
+      <div class="quote risk" style="font-size:15px;">"${s.belief}"</div>
+      <div style="font-size:13px; color:var(--text-muted); margin-top:8px;"><strong style="color:rgba(236,255,245,0.55);">Context:</strong> ${s.ctx}</div>
+      <div class="divider"></div>
+      <div class="step-lbl">How do you respond?</div>
+      <div class="choice-grid" id="m3-choices-${i}">${choicesHTML}</div>
+      <div class="feedback" id="m3-fb-${i}"></div>
+    `;
+    body.appendChild(el);
+  });
+}
+
+const m3done = {};
+function m3Choose(si, ci) {
+  if (m3done['done-' + si]) return;
+  m3done['done-' + si] = true;
+
+  const s = M3[si];
+  const choice = s.choices[ci];
+  const isCorrect = ci === s.correct;
+
+  s.choices.forEach((c, j) => {
+    const btn = document.getElementById('m3-c-' + si + '-' + j);
+    btn.disabled = true;
+    if (j === s.correct) btn.classList.add('reveal');
+    else if (j === ci && !isCorrect) btn.classList.add('wrong');
+  });
+  if (isCorrect) document.getElementById('m3-c-' + si + '-' + ci).classList.add('correct');
+
+  const gradeClass = { elite: 'grade-elite', ok: 'grade-ok', weak: 'grade-weak' }[choice.grade];
+  const fb = document.getElementById('m3-fb-' + si);
+  fb.innerHTML = `
+    <div class="grade-row">
+      <span class="grade ${gradeClass}">${choice.grade.toUpperCase()}</span>
+      <span style="font-size:12px; color:var(--text-muted);">${choice.label}</span>
+    </div>
+    <div class="feedback-body">${choice.fb}</div>
+    ${!isCorrect ? `<div class="highlight"><div class="highlight-lbl">Elite Reframe</div><div class="highlight-body">"${s.eliteReframe}"</div></div>` : ''}
+    <div style="margin-top:10px;"><span class="principle-tag">CV: ${s.cvPrinciple}</span></div>
+  `;
+  fb.classList.add('show');
+  addScore(choice.pts, choice.grade);
+}
+
+/* ──────────────────────────────────────
+   MODULE 4 BUILD
+────────────────────────────────────── */
+function buildM4() {
+  const body = document.getElementById('m4-body');
+  M4.forEach((c, i) => {
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.innerHTML = `
+      <div class="card-eyebrow ey-purple" style="margin-bottom:6px;">Complexity Driver ${i+1}</div>
+      <div class="card-title" style="font-size:17px;">${c.driver}</div>
+      <div class="card-body" style="margin-top:4px; margin-bottom:14px;">${c.whatItIs}</div>
+
+      <div class="divider"></div>
+
+      <div class="card-eyebrow ey-warn" style="margin-bottom:6px;">Your Current Pitch</div>
+      <div class="quote risk">"${c.weakPitch}"</div>
+      <div style="font-size:13px; color:var(--text-muted); margin-top:8px;">This describes a feature. Not a consequence. What happens when the absence of this capability hits a real moment?</div>
+
+      <textarea class="rewrite" id="m4-ta-${i}" placeholder="Communicate the structural risk, not the feature. What breaks — and when does the buyer find out?"></textarea>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="m4Reveal(${i})">Reveal Risk Reframe</button>
+      </div>
+
+      <div class="feedback" id="m4-fb-${i}">
+        <div class="card-eyebrow ey-good" style="margin-bottom:8px;">Elite Risk Communication</div>
+        <div class="quote elite">"${c.eliteRisk}"</div>
+
+        <div style="margin-top:16px;">
+          <div class="card-eyebrow ey-purple" style="margin-bottom:8px;">Live Discovery Question</div>
+          <div class="quote" style="border-left-color: rgba(142,68,173,0.5);">"${c.liveQ}"</div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <span class="principle-tag">Fundamental: ${c.fundamental}</span>
+          <span class="principle-tag">CV: ${c.cvMove}</span>
+        </div>
+      </div>
+    `;
+    body.appendChild(el);
+  });
+}
+
+function m4Reveal(idx) {
+  const fb = document.getElementById('m4-fb-' + idx);
+  fb.classList.add('show');
+  if (!m4done['scored-' + idx]) {
+    m4done['scored-' + idx] = true;
+    addScore(5, 'elite');
+  }
+}
+
+/* ──────────────────────────────────────
+   MODULE 5 BUILD
+────────────────────────────────────── */
+function buildM5() {
+  const selector = document.getElementById('m5-selector');
+  M5.forEach((m, i) => {
+    m5checks[i] = Array(m.items.length).fill(false);
+    const btn = document.createElement('button');
+    btn.className = 'meet-btn' + (i === 0 ? ' active' : '');
+    btn.id = 'm5-mbtn-' + i;
+    btn.textContent = m.label;
+    btn.onclick = () => m5Show(i);
+    selector.appendChild(btn);
+  });
+  m5Show(0);
+}
+
+function m5Show(idx) {
+  document.querySelectorAll('.meet-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('m5-mbtn-' + idx).classList.add('active');
+
+  const m = M5[idx];
+  const body = document.getElementById('m5-body');
+  const checkedCount = m5checks[idx].filter(Boolean).length;
+
+  body.innerHTML = `
+    <div class="card">
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px;">
+        <div>
+          <div class="card-eyebrow ey-muted" style="margin-bottom:4px;">Meeting Checklist</div>
+          <div class="card-title" style="font-size:17px; margin-bottom:0;">${m.title}</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="card-eyebrow ey-muted" style="margin-bottom:4px;">Completion</div>
+          <div style="font-size:22px; font-weight:700; color:${checkedCount===m.items.length ? 'var(--accent)' : checkedCount/m.items.length >= 0.6 ? '#F1C40F' : 'var(--danger)'};" id="m5-comp">${checkedCount}/${m.items.length}</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <ul class="check-list" id="m5-list-${idx}">
+        ${m.items.map((item, ii) => `
+          <li class="check-item" onclick="m5Toggle(${idx},${ii})">
+            <div class="check-box${m5checks[idx][ii] ? ' on' : ''}" id="m5-cb-${idx}-${ii}">${m5checks[idx][ii] ? '✓' : ''}</div>
+            <div>
+              <div class="check-text">${item.text}</div>
+              <div class="check-medd">MEDDPICC: ${item.tag}</div>
+            </div>
+          </li>
+        `).join('')}
+      </ul>
+      <div class="divider"></div>
+      <div style="background:rgba(23,65,45,0.3); border:1px solid var(--border); border-radius:8px; padding:14px 16px;">
+        <div class="card-eyebrow ey-good" style="margin-bottom:6px;">Advancement Check</div>
+        <div style="font-size:13.5px; color:var(--text-mid); line-height:1.65;">${m.advCheck}</div>
+      </div>
+    </div>
+  `;
+}
+
+function m5Toggle(meetIdx, itemIdx) {
+  m5checks[meetIdx][itemIdx] = !m5checks[meetIdx][itemIdx];
+  const cb = document.getElementById('m5-cb-' + meetIdx + '-' + itemIdx);
+  if (m5checks[meetIdx][itemIdx]) {
+    cb.classList.add('on'); cb.textContent = '✓';
+  } else {
+    cb.classList.remove('on'); cb.textContent = '';
+  }
+  const m = M5[meetIdx];
+  const count = m5checks[meetIdx].filter(Boolean).length;
+  const comp = document.getElementById('m5-comp');
+  if (comp) {
+    comp.textContent = count + '/' + m.items.length;
+    comp.style.color = count === m.items.length ? 'var(--accent)' : count/m.items.length >= 0.6 ? '#F1C40F' : 'var(--danger)';
+  }
+}
+
+/* ──────────────────────────────────────
+   INIT
+────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  buildM1();
+  buildM2();
+  buildM3();
+  buildM4();
+  buildM5();
+});
+</script>
+
+</div><!-- /#app -->
+</body>
+</html>
