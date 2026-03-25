@@ -620,7 +620,27 @@
   <div class="view" id="view-m1">
     <div class="mod-tag">Module 1</div>
     <h1 class="mod-title">Question Upgrade Engine</h1>
-    <p class="mod-desc">Each exercise shows a raw question from a Maybern deal. First classify it — does it advance the deal or confirm something you already know? Then rewrite it. Then see how an elite AE would ask it.</p>
+    <p class="mod-desc">Each exercise shows a raw question from a Maybern deal. First classify it — does it advance the deal or confirm something you already know? Then rewrite it. The system grades your attempt before showing the elite version.</p>
+
+    <div style="background:rgba(23,65,45,0.25);border:1px solid rgba(236,255,245,0.1);border-radius:10px;padding:16px 20px;margin-bottom:26px;">
+      <div class="card-eyebrow ey-good" style="margin-bottom:12px;">What separates Good from Elite</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+        <div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--danger);margin-bottom:5px;">Weak</div>
+          <div style="font-size:12.5px;color:var(--text-muted);line-height:1.55;">Lets the buyer explain why their process works. Collects facts, not risk signals. The buyer leaves feeling comfortable.</div>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#F1C40F;margin-bottom:5px;">Good</div>
+          <div style="font-size:12.5px;color:var(--text-muted);line-height:1.55;">Asks about risk or complexity. Gets useful diagnostic information. Uses Maybern-relevant context.</div>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:5px;">Elite</div>
+          <div style="font-size:12.5px;color:var(--text-mid);line-height:1.55;">Forces the buyer to picture the specific breaking point. Surfaces who owns the accountability — not just who does the work. Makes the insight theirs.</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--text-muted);font-style:italic;">The tell: an elite question makes the buyer pause. A weak question makes them feel safe.</div>
+    </div>
+
     <div id="m1-body"></div>
     <div class="mod-nav">
       <button class="btn btn-ghost" onclick="nav('home')">← Home</button>
@@ -634,7 +654,26 @@
   <div class="view" id="view-m2">
     <div class="mod-tag">Module 2</div>
     <h1 class="mod-title">Urgency Reframe Lab</h1>
-    <p class="mod-desc">Value without risk does not create urgency. Each exercise starts with efficiency-based messaging. Rewrite it at the level that actually moves deals.</p>
+    <p class="mod-desc">Value without risk does not create urgency. Each exercise starts with efficiency-based messaging. Rewrite it at the level that actually moves deals. The system grades your attempt before revealing both levels.</p>
+
+    <div style="background:rgba(23,65,45,0.25);border:1px solid rgba(236,255,245,0.1);border-radius:10px;padding:16px 20px;margin-bottom:20px;">
+      <div class="card-eyebrow ey-good" style="margin-bottom:12px;">What separates Good from Elite urgency language</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+        <div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--danger);margin-bottom:5px;">Weak</div>
+          <div style="font-size:12.5px;color:var(--text-muted);line-height:1.55;">Names a feature benefit. No event, no consequence, no one accountable.</div>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#F1C40F;margin-bottom:5px;">Good</div>
+          <div style="font-size:12.5px;color:var(--text-muted);line-height:1.55;">Names a consequence. Gets beyond features. Still missing the real event anchor.</div>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:5px;">Elite</div>
+          <div style="font-size:12.5px;color:var(--text-mid);line-height:1.55;">Names a real event (realization, audit, LP review). Ties it to accountability. Creates Why Now — not just Why Change.</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--text-muted);font-style:italic;">The tell: remove the consequence from your sentence. Does it collapse? Elite urgency collapses without the event. Weak urgency doesn't.</div>
+    </div>
 
     <div class="urgency-explainer">
       <div class="urgency-box">
@@ -724,7 +763,8 @@ const M1 = [
     eliteWhy: "This is a diagnostic, not an invitation to justify. It surfaces the calculation layer and who controls it — without asking them to defend their process.",
     cvPrinciple: "Unconsidered Need",
     meddpicc: "Identified Pain",
-    finalType: "advancing"
+    finalType: "advancing",
+    gradeTip: { weak: "Lets them narrate why their process works. You get a defense, not a diagnosis.", ok: "Asks about risk or complexity — but they still control the narrative.", elite: "Names WHERE the logic lives and WHO controls it, without inviting them to justify it." }
   },
   {
     raw: "How many funds are you managing today?",
@@ -735,7 +775,8 @@ const M1 = [
     eliteWhy: "Anchors scale to consequence. Forces the buyer to picture the breaking point, not just count funds. Now you're learning about risk, not headcount.",
     cvPrinciple: "Why Now",
     meddpicc: "Metrics",
-    finalType: "advancing"
+    finalType: "advancing",
+    gradeTip: { weak: "Collects a number. Tells you nothing about what happens when that number grows.", ok: "Mentions scale or complexity without anchoring to a specific breaking point.", elite: "Names a real growth event and forces them to say where the added complexity actually lands." }
   },
   {
     raw: "Do you have shadow models today?",
@@ -746,7 +787,8 @@ const M1 = [
     eliteWhy: "Lets the buyer describe the shadow work themselves without you labeling it. Their answer is the insight — not your question. Now they own the diagnosis.",
     cvPrinciple: "Status Quo Bias",
     meddpicc: "Identified Pain",
-    finalType: "advancing"
+    finalType: "advancing",
+    gradeTip: { weak: "Yes/no answer. They say no and you've dead-ended the conversation.", ok: "Asks about validation or checking — gets closer but still labels the behavior.", elite: "Gets the buyer to describe the shadow work themselves, without you naming it. They own the insight." }
   },
   {
     raw: "What's your timeline for making a decision?",
@@ -757,7 +799,8 @@ const M1 = [
     eliteWhy: "Shifts the timeline from your sales cycle to their operational risk. Urgency becomes theirs — not yours. This is how you create Why Now without manufacturing pressure.",
     cvPrinciple: "Loss Aversion",
     meddpicc: "Decision Process",
-    finalType: "advancing"
+    finalType: "advancing",
+    gradeTip: { weak: "Asks about your pipeline. The answer is always a polite fiction if there's no urgency.", ok: "References an event or urgency trigger — but doesn't name the consequence of waiting.", elite: "Ties the question to what breaks if they enter the next realization without this solved. Urgency is theirs." }
   },
   {
     raw: "Who else needs to be involved in this decision?",
@@ -768,7 +811,8 @@ const M1 = [
     eliteWhy: "Separates users from the economic buyer. The person who 'answers for it' is your path to the EB. This turns a confirming question into a partial belief-shift at the same time.",
     cvPrinciple: "Shift Ownership to Economic Buyer",
     meddpicc: "Economic Buyer",
-    finalType: "confirming"
+    finalType: "confirming",
+    gradeTip: { weak: "Maps the org chart. You get names, not accountability.", ok: "Asks who decides. Gets you the buying committee.", elite: "Separates who does the work from who has to answer when something goes wrong at a realization." }
   },
   {
     raw: "Are you comfortable moving to a demo?",
@@ -779,7 +823,8 @@ const M1 = [
     eliteWhy: "Names the pain, frames the next step as diagnostic (not a sales meeting), and pulls in the right stakeholder — without asking for permission. You've earned the next step; now you're directing it.",
     cvPrinciple: "Hammock Effect",
     meddpicc: "Champion",
-    finalType: "advancing"
+    finalType: "advancing",
+    gradeTip: { weak: "Asks for permission. Signals you haven't earned the next step yet.", ok: "References the pain and proposes a next step — but still positions it as a sales meeting.", elite: "Names the specific risk, frames it as a working session, and pulls the right stakeholder in. No permission asked." }
   }
 ];
 
@@ -795,7 +840,8 @@ const M2 = [
     lvl1Msg: "When your first carry distribution hits, the waterfall isn't just a model — it's a payout decision. If the math is wrong, carry gets held. Who, in that moment, rebuilds the numbers under pressure — and who answers to the partners for the delay?",
     lvl2Msg: "Admins can do the work — but they can't own the consequence. When partners question the carry calculation, who ultimately has to defend it? That's not an admin problem. That's a GP accountability problem.",
     coreShift: "Time savings → Payout risk at realization",
-    cvTag: "Loss Aversion + Shift Ownership to Economic Buyer"
+    cvTag: "Loss Aversion + Shift Ownership to Economic Buyer",
+    gradeTip: { weak: "Still mentions time savings, automation, or efficiency. No event, no consequence.", ok: "Names a consequence but doesn't anchor it to a real forcing event.", elite: "Names carry distribution as the event. Asks who rebuilds under pressure and who answers to partners." }
   },
   {
     weakMsg: "Our platform gives your team a single source of truth for fund calculations.",
@@ -804,7 +850,8 @@ const M2 = [
     lvl1Msg: "Auditors are already asking for more support documentation. If your waterfall logic lives across three Excel files and two people's laptops, what does your audit prep actually look like — and how long does it take to rebuild the explanation from scratch?",
     lvl2Msg: "When auditors request independent support, the comfort doesn't come from the system — it comes from whoever can explain it. That's individual judgment carrying institutional risk. At what point does your CFO stop being comfortable with that?",
     coreShift: "Single source of truth → Audit defensibility",
-    cvTag: "Unconsidered Need + Why Now"
+    cvTag: "Unconsidered Need + Why Now",
+    gradeTip: { weak: "Pitches the platform benefit. No failure mode named.", ok: "References audit or compliance risk — but doesn't name what's carrying that risk.", elite: "Ties audit comfort to individual judgment carrying institutional risk. Asks when that stops being acceptable." }
   },
   {
     weakMsg: "Maybern reduces reconciliation errors across your fund accounting process.",
@@ -813,7 +860,8 @@ const M2 = [
     lvl1Msg: "Even if nothing has broken yet — what happens when an LP pushes back on a distribution amount and your CFO has to reconstruct the logic live? How long does that take? And what does it signal to that LP about your firm's controls?",
     lvl2Msg: "LPs aren't questioning your math. They're testing your governance. The moment a CFO says 'let me get back to you on that,' the narrative shifts from competent operator to reactive firm. That's not a math problem. That's a credibility problem the GP owns.",
     coreShift: "Error reduction → LP confidence and governance signal",
-    cvTag: "Status Quo Bias + Why Change"
+    cvTag: "Status Quo Bias + Why Change",
+    gradeTip: { weak: "Tries to convince them errors exist. They already said they don't — you're creating defensiveness.", ok: "Surfaces a future scenario but doesn't name the credibility signal.", elite: "Reframes from 'no errors' to 'LP governance test.' The CFO saying 'let me get back to you' is the signal." }
   },
   {
     weakMsg: "We automate fee calculations including step-downs, side letters, and management fee offsets.",
@@ -822,7 +870,8 @@ const M2 = [
     lvl1Msg: "When does your fee logic stop being arithmetic and become conditional logic? At 15 side letters with MFN provisions, every new LP creates a branching calculation. That's where shadow models start — and where errors stop being theoretical.",
     lvl2Msg: "Which parts of your fee waterfall still rely on someone's judgment rather than a system rule? Because judgment-based calculation is fine — until the person who carries that judgment isn't available at quarter-end. Who covers that risk today?",
     coreShift: "Fee automation → Structural risk from manual exception handling",
-    cvTag: "Expose Hidden Risk + Create Contrast"
+    cvTag: "Expose Hidden Risk + Create Contrast",
+    gradeTip: { weak: "Lists what the feature handles. No consequence, no accountability named.", ok: "References complexity or exception handling without naming the judgment risk.", elite: "Asks which parts rely on judgment vs. system rules — then names the person availability risk." }
   }
 ];
 
@@ -884,7 +933,8 @@ const M4 = [
     eliteRisk: "This is where shadow models start. At 5 LPs with standard economics, your fee model is arithmetic. At 20 LPs with MFN provisions, it becomes conditional logic — every new investor creates a branching calculation. The question isn't whether you're managing it today. It's whether the system you're using was built to handle that matrix.",
     liveQ: "What happens when two LPs both invoke MFN and the resulting economics conflict? Who resolves that — and how is the resolution documented?",
     fundamental: "Create Contrast + Expose Risk",
-    cvMove: "Make the safe choice feel structurally unsafe as exceptions compound"
+    cvMove: "Make the safe choice feel structurally unsafe as exceptions compound",
+    gradeTip: { weak: "Describes the side letter tracking feature. No failure mode.", ok: "Mentions complexity or branching logic — but doesn't name where it breaks.", elite: "Names the conditional logic matrix and where shadow models start forming as exceptions compound." }
   },
   {
     driver: "Fee Step-Downs After Investment Period",
@@ -893,7 +943,8 @@ const M4 = [
     eliteRisk: "In Excel, this means multiple fee tabs, date-dependent formulas, and manual toggles. The risk isn't that you'll forget the step-down exists — it's that someone forgets to trigger it, or triggers it at the wrong time. Fee errors distort preferred return tiers, IRR, and carry allocations. If fees are wrong, the waterfall is wrong. If the waterfall is wrong, LP statements are wrong.",
     liveQ: "How does your team currently track that the fee base switch has occurred — and who validates it before the next LP statement goes out?",
     fundamental: "Expose Hidden Risk — time-based triggers create silent failure points",
-    cvMove: "Turn abstract calculation risk into real LP exposure before it hits audit"
+    cvMove: "Turn abstract calculation risk into real LP exposure before it hits audit",
+    gradeTip: { weak: "Describes the step-down automation feature. No timing risk named.", ok: "Mentions date-dependent logic or timing — but doesn't trace the consequence chain.", elite: "Traces the failure chain: fees wrong → waterfall wrong → LP statements wrong. Asks who validates the switch happened." }
   },
   {
     driver: "Real Estate Asset-Level Promotes",
@@ -902,7 +953,8 @@ const M4 = [
     eliteRisk: "You're not calculating one waterfall anymore — you're compounding logic. Every asset has its own promote, lookback, and catch-up. Those outputs feed the fund-level waterfall. Each calculation depends on the accuracy of the layer below it. Reconciliation exposure doesn't live in the fund waterfall — it lives in the gap between the asset-level math and the fund-level output.",
     liveQ: "When there's a discrepancy between your asset-level promote calculation and what flows into the fund waterfall — how do you trace it back, and who owns that reconciliation?",
     fundamental: "Quantify Escalation — layered waterfalls multiply audit exposure",
-    cvMove: "Shift from describing product capability to describing compounding structural risk"
+    cvMove: "Shift from describing product capability to describing compounding structural risk",
+    gradeTip: { weak: "Describes the multi-tier feature. Doesn't touch reconciliation exposure.", ok: "Mentions compounding complexity or layers — but not where the gap actually lives.", elite: "Names where reconciliation exposure lives: in the gap between asset-level math and fund-level output." }
   },
   {
     driver: "Management Fee Scale Non-Linearity",
@@ -911,7 +963,8 @@ const M4 = [
     eliteRisk: "The problem isn't linear — you multiply investor × asset × time × structure × discount. That's compound growth on the backend. Excel handles rows and columns well. It struggles with conditional matrices. The first time this breaks isn't when you notice the error — it's when an LP questions the calculation and someone on your team can't reconstruct the logic without the original author in the room.",
     liveQ: "At what point does someone on your team own a model that only they fully understand? And what's the plan if they're not available during a realization?",
     fundamental: "Create Future Risk + Urgency — today's model works until scale exposes structural fragility",
-    cvMove: "Make the buyer see that today's workable solution creates tomorrow's single point of failure"
+    cvMove: "Make the buyer see that today's workable solution creates tomorrow's single point of failure",
+    gradeTip: { weak: "Promises the platform scales with them. Still selling the feature.", ok: "Mentions compound growth or conditional matrices — but no moment of discovery.", elite: "Names the exact moment it breaks: when an LP questions it and no one can reconstruct without the original author." }
   }
 ];
 
@@ -991,6 +1044,77 @@ const M5 = [
     advCheck: "Do you know who signs off internally — and whether your champion has the organizational standing to drive that? A champion who can't remove internal obstacles isn't a champion."
   }
 ];
+
+/* ──────────────────────────────────────
+   GRADING ENGINE
+   Live-evaluates rep rewrites in M1, M2, M4
+────────────────────────────────────── */
+const WEAK_SIGNALS = [
+  { w: 'save time',          m: "Time savings is efficiency language — it won't create urgency." },
+  { w: 'saves time',         m: "Time savings is efficiency language — it won't create urgency." },
+  { w: 'saves your',         m: "Saving the buyer something is a feature benefit, not a risk signal." },
+  { w: 'streamline',         m: "Streamlining is operational language. What's the risk if they don't?" },
+  { w: 'automate',           m: "Automation is a feature. What's the consequence of not having it at the wrong moment?" },
+  { w: 'centralize',         m: "Centralizing is a feature benefit. Who owns the risk of not centralizing?" },
+  { w: 'single source',      m: "Single source of truth is a feature pitch. Connect it to a specific failure mode." },
+  { w: 'easier',             m: "Easier is comfort language. What breaks when this isn't in place?" },
+  { w: 'efficient',          m: "Efficiency doesn't create urgency. What's the cost of staying where they are?" },
+  { w: 'tell me your',       m: "Open-ended process questions let the buyer explain why their process works." },
+  { w: 'walk me through',    m: "This lets the buyer narrate why their process works. You need their risk, not their story." },
+  { w: 'are you comfortable',m: "Asking for comfort is asking for permission. You haven't earned the next step yet." },
+  { w: 'our platform',       m: "Leading with 'our platform' is feature language. Start with what breaks without it." },
+  { w: 'we can help',        m: "'We can help' is still selling the feature. Start with the consequence instead." },
+];
+
+const ELITE_SIGNALS = [
+  'what happens', 'what changes', 'who ultimately', 'who answers',
+  'who owns', 'who would', 'when ', 'breaks', 'wrong', 'defend',
+  'exposed', 'realization', 'audit', 'carry ', ' lp ', 'waterfall',
+  'shadow', 'how long', 'what does your team', 'before you',
+  'comfortable with', 'hold up', 'available', 'step in',
+  'reconstruct', 'under pressure', 'consequence', 'accountability',
+  'judgment', 'who covers', 'not available', 'failure mode',
+  'gap between', 'matrix', 'conditional', 'the moment'
+];
+
+const GOOD_SIGNALS = [
+  'risk', 'complex', 'scale', 'pressure', 'error', 'validate',
+  'trust', 'challenge', 'gap', '?', 'impact', 'expose', 'surface',
+  'what if', 'concern', 'problem', 'break', 'scrutiny', 'logic'
+];
+
+function gradeText(text) {
+  if (!text || text.trim().length < 20) {
+    return { grade: 'weak', ptsFactor: 0, msg: "You need to write something — even rough. The gap between your instinct and the elite version is the lesson." };
+  }
+  const lower = text.toLowerCase();
+  for (const sig of WEAK_SIGNALS) {
+    if (lower.includes(sig.w)) {
+      return { grade: 'weak', ptsFactor: 0.1, msg: sig.m };
+    }
+  }
+  const eliteHits = ELITE_SIGNALS.filter(s => lower.includes(s)).length;
+  const goodHits  = GOOD_SIGNALS.filter(s => lower.includes(s)).length;
+  if (eliteHits >= 2) {
+    return { grade: 'elite', ptsFactor: 1.0, msg: "Strong — you're communicating consequence and accountability, not just capability." };
+  }
+  if (eliteHits === 1 || goodHits >= 2) {
+    return { grade: 'ok', ptsFactor: 0.55, msg: "Getting closer. You surfaced risk language, but didn't fully land the consequence or name who's accountable for it." };
+  }
+  return { grade: 'weak', ptsFactor: 0.15, msg: "Still too close to features or process. Push further: what breaks, who answers for it, and when does it surface?" };
+}
+
+function renderGradedAttempt(userText, result) {
+  const cls   = { elite: 'grade-elite', ok: 'grade-ok', weak: 'grade-weak' };
+  const label = { elite: 'Elite', ok: 'Good', weak: 'Weak' };
+  const safe  = userText ? userText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : '';
+  return `<div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);">
+    <div class="card-eyebrow ey-muted" style="margin-bottom:6px;">Your Attempt</div>
+    ${safe ? `<div class="quote" style="margin-bottom:10px;opacity:0.85;">"${safe}"</div>` : '<div style="font-size:13px;color:var(--text-muted);margin-bottom:10px;font-style:italic;">Nothing written — review the elite version and understand why it works.</div>'}
+    <div class="grade-row"><span class="grade ${cls[result.grade]}">${label[result.grade]}</span></div>
+    <div class="feedback-body" style="margin-top:8px;">${result.msg}</div>
+  </div>`;
+}
 
 /* ──────────────────────────────────────
    GLOBAL STATE
@@ -1073,10 +1197,24 @@ function buildM1() {
       <div id="m1-classify-result-${i}"></div>
       <div id="m1-step2-${i}" style="display:none; margin-top:16px;">
         <div class="step-lbl">Step 2 — Rewrite it as an advancing question</div>
-        <textarea class="rewrite" id="m1-ta-${i}" placeholder="Write something — even rough. The gap between yours and the elite version is what trains you."></textarea>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:8px 0 12px;">
+          <div style="background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.2);border-radius:6px;padding:9px 11px;">
+            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--danger);margin-bottom:4px;">Weak looks like</div>
+            <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;">${q.gradeTip.weak}</div>
+          </div>
+          <div style="background:rgba(241,196,15,0.07);border:1px solid rgba(241,196,15,0.2);border-radius:6px;padding:9px 11px;">
+            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#F1C40F;margin-bottom:4px;">Good looks like</div>
+            <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;">${q.gradeTip.ok}</div>
+          </div>
+          <div style="background:rgba(46,204,113,0.07);border:1px solid rgba(46,204,113,0.2);border-radius:6px;padding:9px 11px;">
+            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:4px;">Elite looks like</div>
+            <div style="font-size:11.5px;color:var(--text-mid);line-height:1.5;">${q.gradeTip.elite}</div>
+          </div>
+        </div>
+        <textarea class="rewrite" id="m1-ta-${i}" placeholder="Write your version. The system will grade it before showing the elite answer."></textarea>
         <div class="btn-row">
-          <button class="btn btn-primary" onclick="m1ShowElite(${i})">See Elite Version</button>
-          <span style="font-size:12px; color:var(--text-muted);">Any attempt beats nothing.</span>
+          <button class="btn btn-primary" onclick="m1ShowElite(${i})">Grade My Answer + See Elite</button>
+          <span style="font-size:12px; color:var(--text-muted);">Your attempt is graded before the reveal.</span>
         </div>
       </div>
 
@@ -1127,11 +1265,16 @@ function m1Classify(idx, type) {
 
 function m1ShowElite(idx) {
   const fb = document.getElementById('m1-fb-' + idx);
-  fb.classList.add('show');
   if (!m1done['scored-' + idx]) {
     m1done['scored-' + idx] = true;
-    addScore(8, 'elite');
+    const ta = document.getElementById('m1-ta-' + idx);
+    const userText = ta ? ta.value.trim() : '';
+    const result = gradeText(userText);
+    fb.insertAdjacentHTML('afterbegin', renderGradedAttempt(userText, result));
+    const pts = Math.max(1, Math.round(8 * result.ptsFactor));
+    addScore(pts, result.grade);
   }
+  fb.classList.add('show');
 }
 
 /* ──────────────────────────────────────
@@ -1150,10 +1293,24 @@ function buildM2() {
       <div class="divider"></div>
 
       <div class="step-lbl">Rewrite it. What creates real urgency here?</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:8px 0 12px;">
+        <div style="background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.2);border-radius:6px;padding:9px 11px;">
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--danger);margin-bottom:4px;">Weak looks like</div>
+          <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;">${u.gradeTip.weak}</div>
+        </div>
+        <div style="background:rgba(241,196,15,0.07);border:1px solid rgba(241,196,15,0.2);border-radius:6px;padding:9px 11px;">
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#F1C40F;margin-bottom:4px;">Good looks like</div>
+          <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;">${u.gradeTip.ok}</div>
+        </div>
+        <div style="background:rgba(46,204,113,0.07);border:1px solid rgba(46,204,113,0.2);border-radius:6px;padding:9px 11px;">
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:4px;">Elite looks like</div>
+          <div style="font-size:11.5px;color:var(--text-mid);line-height:1.5;">${u.gradeTip.elite}</div>
+        </div>
+      </div>
       <textarea class="rewrite" id="m2-ta-${i}" placeholder="Don't sell the feature. Sell the consequence of not acting. Level 1 = operational event. Level 2 = who's accountable."></textarea>
 
       <div class="btn-row">
-        <button class="btn btn-primary" onclick="m2Reveal(${i})">Reveal Urgency Reframe</button>
+        <button class="btn btn-primary" onclick="m2Reveal(${i})">Grade My Answer + Reveal Reframe</button>
       </div>
 
       <div class="feedback" id="m2-fb-${i}">
@@ -1181,11 +1338,16 @@ function buildM2() {
 
 function m2Reveal(idx) {
   const fb = document.getElementById('m2-fb-' + idx);
-  fb.classList.add('show');
   if (!m2done['scored-' + idx]) {
     m2done['scored-' + idx] = true;
-    addScore(6, 'elite');
+    const ta = document.getElementById('m2-ta-' + idx);
+    const userText = ta ? ta.value.trim() : '';
+    const result = gradeText(userText);
+    fb.insertAdjacentHTML('afterbegin', renderGradedAttempt(userText, result));
+    const pts = Math.max(1, Math.round(6 * result.ptsFactor));
+    addScore(pts, result.grade);
   }
+  fb.classList.add('show');
 }
 
 /* ──────────────────────────────────────
@@ -1268,10 +1430,24 @@ function buildM4() {
       <div class="quote risk">"${c.weakPitch}"</div>
       <div style="font-size:13px; color:var(--text-muted); margin-top:8px;">This describes a feature. Not a consequence. What happens when the absence of this capability hits a real moment?</div>
 
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0;">
+        <div style="background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.2);border-radius:6px;padding:9px 11px;">
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--danger);margin-bottom:4px;">Weak looks like</div>
+          <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;">${c.gradeTip.weak}</div>
+        </div>
+        <div style="background:rgba(241,196,15,0.07);border:1px solid rgba(241,196,15,0.2);border-radius:6px;padding:9px 11px;">
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#F1C40F;margin-bottom:4px;">Good looks like</div>
+          <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;">${c.gradeTip.ok}</div>
+        </div>
+        <div style="background:rgba(46,204,113,0.07);border:1px solid rgba(46,204,113,0.2);border-radius:6px;padding:9px 11px;">
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:4px;">Elite looks like</div>
+          <div style="font-size:11.5px;color:var(--text-mid);line-height:1.5;">${c.gradeTip.elite}</div>
+        </div>
+      </div>
       <textarea class="rewrite" id="m4-ta-${i}" placeholder="Communicate the structural risk, not the feature. What breaks — and when does the buyer find out?"></textarea>
 
       <div class="btn-row">
-        <button class="btn btn-primary" onclick="m4Reveal(${i})">Reveal Risk Reframe</button>
+        <button class="btn btn-primary" onclick="m4Reveal(${i})">Grade My Answer + Reveal Risk Reframe</button>
       </div>
 
       <div class="feedback" id="m4-fb-${i}">
@@ -1295,11 +1471,16 @@ function buildM4() {
 
 function m4Reveal(idx) {
   const fb = document.getElementById('m4-fb-' + idx);
-  fb.classList.add('show');
   if (!m4done['scored-' + idx]) {
     m4done['scored-' + idx] = true;
-    addScore(5, 'elite');
+    const ta = document.getElementById('m4-ta-' + idx);
+    const userText = ta ? ta.value.trim() : '';
+    const result = gradeText(userText);
+    fb.insertAdjacentHTML('afterbegin', renderGradedAttempt(userText, result));
+    const pts = Math.max(1, Math.round(5 * result.ptsFactor));
+    addScore(pts, result.grade);
   }
+  fb.classList.add('show');
 }
 
 /* ──────────────────────────────────────
